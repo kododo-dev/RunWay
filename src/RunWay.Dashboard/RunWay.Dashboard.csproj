@@ -1,0 +1,51 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
+  </PropertyGroup>
+
+	<ItemGroup>
+		<EmbeddedResource Include="SPA\dist\**\*" />
+	</ItemGroup>
+
+    <ItemGroup>
+        <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    </ItemGroup>
+    
+    <ItemGroup>
+      <ProjectReference Include="..\RunWay.Core\RunWay.Core.csproj" />
+      <ProjectReference Include="..\RunWay\RunWay.csproj" />
+    </ItemGroup>
+    
+    <ItemGroup>
+      <PackageReference Include="Kododo.Reiho.AspNetCore" Version="1.0.0" />
+      <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="8.0.26" />
+    </ItemGroup>
+
+  <Target Name="_PreserveFileProvidersEmbeddedPackageReference" AfterTargets="AddPrunePackageReferences">
+    <ItemGroup>
+      <PrunePackageReference Remove="Microsoft.Extensions.FileProviders.Embedded" />
+    </ItemGroup>
+  </Target>
+
+    <ItemGroup>
+      <None Include=".nuget\logo.png" Pack="true" PackagePath="\" />
+      <None Include=".nuget\README.md" Pack="true" PackagePath="" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="API\Jobs\" />
+      <Folder Include="API\Runners\" />
+    </ItemGroup>
+
+    <PropertyGroup>
+      <Description>Embedded web dashboard for RunWay. Inspect job statuses, audit timelines, and runner health directly from your ASP.NET Core application.</Description>
+      <PackageLicenseExpression>MIT</PackageLicenseExpression>
+      <RepositoryUrl>https://github.com/kododo-dev/RunWay</RepositoryUrl>
+      <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+      <PackageReadmeFile>README.md</PackageReadmeFile>
+      <PackageIcon>logo.png</PackageIcon>
+      <Version>1.0.0-local</Version>
+    </PropertyGroup>
+
+</Project>

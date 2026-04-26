@@ -1,0 +1,17 @@
+﻿<Solution>
+  <Folder Name="/Tests/">
+    <Project Path="RunWay.PostgreSQL.Tests/RunWay.PostgreSQL.Tests.csproj" />
+    <Project Path="RunWay.Tests/RunWay.Tests.csproj" />
+  </Folder>
+  <Project Path="RunWay.Core/RunWay.Core.csproj" />
+  <Project Path="RunWay/RunWay.csproj" />
+  <Project Path="RunWay.Runner/RunWay.Runner.csproj" />
+  <Project Path="RunWay.Dashboard/RunWay.Dashboard.csproj" />
+  <Folder Name="/Externals/">
+    <Project Path="RunWay.EntityFramework/RunWay.EntityFramework.csproj" />
+    <Project Path="RunWay.PostgreSQL/RunWay.PostgreSQL.csproj" />
+  </Folder>
+  <Folder Name="/Demo/">
+    <Project Path="RunWay.Demo.WebApp/RunWay.Demo.WebApp.csproj" />
+  </Folder>
+</Solution>

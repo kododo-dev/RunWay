@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <ItemGroup>
+      <ProjectReference Include="..\RunWay.Core\RunWay.Core.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.7" />
+      <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.7" />
+      <PackageReference Include="Microsoft.Extensions.Options" Version="10.0.7" />
+      <PackageReference Include="NCrontab" Version="3.4.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+        <_Parameter1>Kododo.RunWay.Tests</_Parameter1>
+      </AssemblyAttribute>
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Include=".nuget\logo.png" Pack="true" PackagePath="\" />
+      <None Include=".nuget\README.md" Pack="true" PackagePath="" />
+    </ItemGroup>
+
+    <PropertyGroup>
+      <Description>Lightweight background job queue for .NET. Schedule and persist jobs with priority, retries, timeout support, and outbox pattern integration.</Description>
+      <PackageLicenseExpression>MIT</PackageLicenseExpression>
+      <RepositoryUrl>https://github.com/kododo-dev/RunWay</RepositoryUrl>
+      <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+      <PackageReadmeFile>README.md</PackageReadmeFile>
+      <PackageIcon>logo.png</PackageIcon>
+      <Version>1.0.0-local</Version>
+    </PropertyGroup>
+
+</Project>

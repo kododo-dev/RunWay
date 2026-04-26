@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <ItemGroup>
+      <None Include=".nuget\logo.png" Pack="true" PackagePath="\" />
+      <None Include=".nuget\README.md" Pack="true" PackagePath="" />
+    </ItemGroup>
+
+    <PropertyGroup>
+      <Description>Core abstractions for RunWay — IStore, IJobHandler, and job models. Reference this package when implementing a custom storage backend or job handler.</Description>
+      <PackageLicenseExpression>MIT</PackageLicenseExpression>
+      <RepositoryUrl>https://github.com/kododo-dev/RunWay</RepositoryUrl>
+      <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+      <PackageReadmeFile>README.md</PackageReadmeFile>
+      <PackageIcon>logo.png</PackageIcon>
+      <Version>1.0.0-local</Version>
+    </PropertyGroup>
+
+</Project>
