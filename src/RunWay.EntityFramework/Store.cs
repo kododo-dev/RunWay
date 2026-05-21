@@ -347,6 +347,7 @@ internal sealed class Store(JobsDbContext db) : IStore
         var query = db.Recurrences
             .Include(x => x.Job)
             .AsNoTracking()
+            .OrderBy(x => x.CreatedAt)
             .Select(r => ToRecurrence(r));
 
         var count = await query.CountAsync(stoppingToken);

@@ -1,8 +1,11 @@
 # RunWay
 
 [![CI](https://github.com/kododo-dev/RunWay/actions/workflows/ci.yml/badge.svg)](https://github.com/kododo-dev/RunWay/actions/workflows/ci.yml)
+[![Demo](https://img.shields.io/badge/demo-live-brightgreen)](https://kododo.dev/runway/demo)
 
 Lightweight, persistent background job queue for .NET — with priority scheduling, automatic retries, timeout support, outbox pattern integration, and a built-in web dashboard.
+
+A live demo is available at [kododo.dev/runway/demo](https://kododo.dev/runway/demo).
 
 ## Packages
 
