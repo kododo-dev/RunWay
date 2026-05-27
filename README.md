@@ -3,7 +3,7 @@
 [![CI](https://github.com/kododo-dev/RunWay/actions/workflows/ci.yml/badge.svg)](https://github.com/kododo-dev/RunWay/actions/workflows/ci.yml)
 [![Demo](https://img.shields.io/badge/demo-live-brightgreen)](https://kododo.dev/runway/demo)
 
-Lightweight, persistent background job queue for .NET — with priority scheduling, automatic retries, timeout support, outbox pattern integration, and a built-in web dashboard.
+Lightweight, persistent background job queue for .NET. Supports priority scheduling, automatic retries, timeout enforcement, outbox pattern integration, and a built-in web dashboard.
 
 A live demo is available at [kododo.dev/runway/demo](https://kododo.dev/runway/demo).
 
@@ -31,19 +31,16 @@ dotnet add package Kododo.RunWay.Dashboard     # optional
 ### 2. Define a job and its handler
 
 ```csharp
-// Job — the data your handler will receive
 public class SendEmailJob
 {
     public required string To      { get; set; }
     public required string Subject { get; set; }
 }
 
-// Handler — the logic that processes the job
 public class SendEmailJobHandler : IJobHandler<SendEmailJob>
 {
     public async Task HandleAsync(SendEmailJob data, CancellationToken stoppingToken)
     {
-        // send email...
     }
 }
 ```
@@ -101,16 +98,13 @@ await scheduler
 
 ## Recurring jobs
 
-Register recurring jobs on application startup using a standard cron expression. RunWay validates the expression at startup and stores it as-is — shorthand expressions like `*/5 * * * *` are preserved.
+Register recurring jobs using standard 5-field cron expressions. Shorthand like `*/5 * * * *` is stored as-is, not expanded.
 
 ```csharp
-// Simple recurring job
 await app.SetRecurrenceAsync("hourly-report", "0 * * * *", new GenerateReportJob { ReportType = "hourly" });
 
-// Every 5 minutes — stored as "*/5 * * * *", not expanded
 await app.SetRecurrenceAsync("health-check", "*/5 * * * *", new HealthCheckJob());
 
-// With job options
 await app.SetRecurrenceAsync("nightly-cleanup", "0 2 * * *", new CleanupJob(), opts =>
 {
     opts.WithTimeout(TimeSpan.FromMinutes(30))
@@ -118,7 +112,6 @@ await app.SetRecurrenceAsync("nightly-cleanup", "0 2 * * *", new CleanupJob(), o
 });
 ```
 
-- Standard 5-field cron syntax (minutes, hours, day, month, weekday)
 - Safe to call on every startup — only updates if the expression or data changed
 - Each recurrence is identified by a unique string key
 
@@ -183,7 +176,13 @@ app.UseRunWayDashboard()
    .RequireAuthorization(policy => policy.RequireRole("Admin"));
 ```
 
-The dashboard provides an overview of job counts, a per-status job list with pagination, a detailed audit timeline for each job, recurring job schedules with cron expressions, and a runner overview with health status.
+The dashboard shows job counts by status, a paginated job list, per-job audit timeline, recurring job schedules, and runner health.
+
+![Dashboard overview](src/docs/screenshots/01-dashboard.png)
+
+![Jobs list](src/docs/screenshots/02-jobs.png)
+
+![Job details](src/docs/screenshots/03-job.png)
 
 ---
 
@@ -191,19 +190,6 @@ The dashboard provides an overview of job counts, a per-status job list with pag
 
 - .NET 8, 9, or 10
 - PostgreSQL 12 or later (additional storage providers coming soon)
-
-## Project structure
-
-```
-src/
-├── RunWay.Core/           # Abstractions: IStore, IJobHandler, and job models
-├── RunWay/                # Main package: DI registration and job scheduling
-├── RunWay.Runner/         # Background worker
-├── RunWay.Dashboard/      # Embedded SPA web dashboard
-├── RunWay.EntityFramework/ # EF Core base (internal — not published as a package)
-├── RunWay.PostgreSQL/     # PostgreSQL IStore implementation
-└── RunWay.Demo.WebApp/    # Demo application
-```
 
 ## License
 
