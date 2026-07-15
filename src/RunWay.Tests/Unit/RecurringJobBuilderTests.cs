@@ -1,4 +1,3 @@
-using FluentAssertions;
 using Kododo.RunWay.Core.Jobs;
 using Kododo.RunWay.Core.Recurrences;
 using Kododo.RunWay.Core.Store;
@@ -17,18 +16,17 @@ public class RecurringJobBuilderTests
 
     private RecurringJobBuilder<object> CreateBuilder(object data = null!)
     {
-        data ??= new { };
         var builder = new RecurringJobBuilder<object>(data, _store, _calculator, _options);
         _calculator.CalculateNextOccurrence(Arg.Any<string>(), Arg.Any<DateTimeOffset>())
             .Returns(_nextOccurrence);
         _store.FindRecurrenceAsync(Arg.Any<RecurrenceId>(), Arg.Any<CancellationToken>())
             .Returns((Recurrence?)null);
         _store.CreateRecurrenceWithoutTransactionAsync(Arg.Any<Recurrence>(), Arg.Any<CancellationToken>())
-            .Returns(callInfo => callInfo.Arg<Recurrence>());
+            .Returns(callInfo => callInfo.Arg<Recurrence>()!);
         _store.CreateWithoutTransactionAsync(Arg.Any<Job>(), Arg.Any<CancellationToken>())
-            .Returns(callInfo => callInfo.Arg<Job>());
+            .Returns(callInfo => callInfo.Arg<Job>()!);
         _store.UpdateRecurrenceWithoutTransactionAsync(Arg.Any<Recurrence>(), Arg.Any<CancellationToken>())
-            .Returns(callInfo => callInfo.Arg<Recurrence>());
+            .Returns(callInfo => callInfo.Arg<Recurrence>()!);
         return builder;
     }
 
@@ -41,7 +39,7 @@ public class RecurringJobBuilderTests
         await builder.SetRecurrenceAsync("test-key", expression, CancellationToken.None);
 
         await _store.Received(1).CreateRecurrenceWithoutTransactionAsync(
-            Arg.Is<Recurrence>(r => r.Rule == expression),
+            Arg.Is<Recurrence>(r => r != null && r.Rule == expression),
             Arg.Any<CancellationToken>());
     }
 
@@ -54,7 +52,7 @@ public class RecurringJobBuilderTests
         await builder.SetRecurrenceAsync("test-key", expression, CancellationToken.None);
 
         await _store.Received(1).CreateRecurrenceWithoutTransactionAsync(
-            Arg.Is<Recurrence>(r => r.Rule == "*/5 * * * *"),
+            Arg.Is<Recurrence>(r => r != null && r.Rule == "*/5 * * * *"),
             Arg.Any<CancellationToken>());
     }
 
@@ -67,7 +65,7 @@ public class RecurringJobBuilderTests
         await builder.SetRecurrenceAsync("test-key", expression, CancellationToken.None);
 
         await _store.Received(1).CreateRecurrenceWithoutTransactionAsync(
-            Arg.Is<Recurrence>(r => r.Rule != "0,5,10,15,20,25,30,35,40,45,50,55 * * * *"),
+            Arg.Is<Recurrence>(r => r != null && r.Rule != "0,5,10,15,20,25,30,35,40,45,50,55 * * * *"),
             Arg.Any<CancellationToken>());
     }
 
@@ -126,16 +124,16 @@ public class RecurringJobBuilderTests
         _calculator.CalculateNextOccurrence(Arg.Any<string>(), Arg.Any<DateTimeOffset>())
             .Returns(_nextOccurrence);
         _store.CreateWithoutTransactionAsync(Arg.Any<Job>(), Arg.Any<CancellationToken>())
-            .Returns(callInfo => callInfo.Arg<Job>());
+            .Returns(callInfo => callInfo.Arg<Job>()!);
         _store.UpdateRecurrenceWithoutTransactionAsync(Arg.Any<Recurrence>(), Arg.Any<CancellationToken>())
-            .Returns(callInfo => callInfo.Arg<Recurrence>());
+            .Returns(callInfo => callInfo.Arg<Recurrence>()!);
 
         var builder = new RecurringJobBuilder<object>(new { }, _store, _calculator, _options);
 
         await builder.SetRecurrenceAsync("test-key", newExpression, CancellationToken.None);
 
         await _store.Received(1).UpdateRecurrenceWithoutTransactionAsync(
-            Arg.Is<Recurrence>(r => r.Rule == newExpression),
+            Arg.Is<Recurrence>(r => r != null && r.Rule == newExpression),
             Arg.Any<CancellationToken>());
     }
 }
