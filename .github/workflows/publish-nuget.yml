@@ -24,7 +24,6 @@ jobs:
             8.x
             9.x
             10.x
-          dotnet-quality: preview
 
       - name: Extract version from tag
         id: version
@@ -44,6 +43,9 @@ jobs:
           dotnet build src/RunWay/RunWay.csproj \
             --configuration Release \
             -p:Version=${{ steps.version.outputs.VERSION }}
+          dotnet build src/RunWay.EntityFramework/RunWay.EntityFramework.csproj \
+            --configuration Release \
+            -p:Version=${{ steps.version.outputs.VERSION }}
           dotnet build src/RunWay.Runner/RunWay.Runner.csproj \
             --configuration Release \
             -p:Version=${{ steps.version.outputs.VERSION }}
@@ -51,6 +53,9 @@ jobs:
             --configuration Release \
             -p:Version=${{ steps.version.outputs.VERSION }}
           dotnet build src/RunWay.PostgreSQL/RunWay.PostgreSQL.csproj \
+            --configuration Release \
+            -p:Version=${{ steps.version.outputs.VERSION }}
+          dotnet build src/RunWay.SqlServer/RunWay.SqlServer.csproj \
             --configuration Release \
             -p:Version=${{ steps.version.outputs.VERSION }}
 
@@ -61,6 +66,10 @@ jobs:
             -p:Version=${{ steps.version.outputs.VERSION }} \
             --output ./nupkgs
           dotnet pack src/RunWay/RunWay.csproj \
+            --configuration Release --no-build \
+            -p:Version=${{ steps.version.outputs.VERSION }} \
+            --output ./nupkgs
+          dotnet pack src/RunWay.EntityFramework/RunWay.EntityFramework.csproj \
             --configuration Release --no-build \
             -p:Version=${{ steps.version.outputs.VERSION }} \
             --output ./nupkgs
@@ -76,6 +85,10 @@ jobs:
             --configuration Release --no-build \
             -p:Version=${{ steps.version.outputs.VERSION }} \
             --output ./nupkgs
+          dotnet pack src/RunWay.SqlServer/RunWay.SqlServer.csproj \
+            --configuration Release --no-build \
+            -p:Version=${{ steps.version.outputs.VERSION }} \
+            --output ./nupkgs
 
       - name: Push to NuGet
         run: |
@@ -84,6 +97,10 @@ jobs:
             --source https://api.nuget.org/v3/index.json \
             --skip-duplicate
           dotnet nuget push ./nupkgs/Kododo.RunWay.*.nupkg \
+            --api-key ${{ secrets.NUGET_API_KEY }} \
+            --source https://api.nuget.org/v3/index.json \
+            --skip-duplicate
+          dotnet nuget push ./nupkgs/Kododo.RunWay.EntityFramework.*.nupkg \
             --api-key ${{ secrets.NUGET_API_KEY }} \
             --source https://api.nuget.org/v3/index.json \
             --skip-duplicate
@@ -96,6 +113,10 @@ jobs:
             --source https://api.nuget.org/v3/index.json \
             --skip-duplicate
           dotnet nuget push ./nupkgs/Kododo.RunWay.PostgreSQL.*.nupkg \
+            --api-key ${{ secrets.NUGET_API_KEY }} \
+            --source https://api.nuget.org/v3/index.json \
+            --skip-duplicate
+          dotnet nuget push ./nupkgs/Kododo.RunWay.SqlServer.*.nupkg \
             --api-key ${{ secrets.NUGET_API_KEY }} \
             --source https://api.nuget.org/v3/index.json \
             --skip-duplicate

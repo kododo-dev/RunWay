@@ -14,14 +14,12 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="FluentAssertions" />
-    <PackageReference Include="NSubstitute" />
+    <PackageReference Include="Testcontainers.MsSql" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\RunWay\RunWay.csproj" />
-    <ProjectReference Include="..\RunWay.Core\RunWay.Core.csproj" />
-    <ProjectReference Include="..\RunWay.Runner\RunWay.Runner.csproj" />
+    <ProjectReference Include="..\RunWay.SqlServer\RunWay.SqlServer.csproj" />
+    <ProjectReference Include="..\RunWay.Storage.Tests\RunWay.Storage.Tests.csproj" />
   </ItemGroup>
 
 </Project>

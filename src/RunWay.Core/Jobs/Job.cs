@@ -10,9 +10,9 @@ public sealed class Job(JobId id, int version, JobData data, JobOptions options,
     
     public static Job CreateNew(JobData data, JobOptions options, DateTimeOffset scheduledAt, RecurrenceId? recurrenceId = null)
     {
-        var newJob = new Job(new JobId(""), 1, data, options, recurrenceId, JobStatus.Scheduled, null, DateTimeOffset.Now, scheduledAt, 0);
-        newJob._pendingEvents.Add(new JobAuditRecord(DateTimeOffset.Now, JobAuditRecordType.Created));
-        newJob._pendingEvents.Add(new JobAuditRecord(DateTimeOffset.Now, JobAuditRecordType.Scheduled, scheduledAt.UtcDateTime.ToString("O")));
+        var newJob = new Job(new JobId(""), 1, data, options, recurrenceId, JobStatus.Scheduled, null, DateTimeOffset.UtcNow, scheduledAt, 0);
+        newJob._pendingEvents.Add(new JobAuditRecord(DateTimeOffset.UtcNow, JobAuditRecordType.Created));
+        newJob._pendingEvents.Add(new JobAuditRecord(DateTimeOffset.UtcNow, JobAuditRecordType.Scheduled, scheduledAt.UtcDateTime.ToString("O")));
         return newJob;
     }
 
@@ -50,7 +50,7 @@ public sealed class Job(JobId id, int version, JobData data, JobOptions options,
         
         this.Status = JobStatus.Running;
         this.RunnerId = runnerInfo.Id;
-        this._pendingEvents.Add(new JobAuditRecord(DateTimeOffset.Now, JobAuditRecordType.Started, runnerInfo.ToString()));
+        this._pendingEvents.Add(new JobAuditRecord(DateTimeOffset.UtcNow, JobAuditRecordType.Started, runnerInfo.ToString()));
     }
 
     public void Succeeded()
@@ -60,7 +60,7 @@ public sealed class Job(JobId id, int version, JobData data, JobOptions options,
         
         this.Status = JobStatus.Succeeded;
         this.RunnerId = null;
-        this._pendingEvents.Add(new JobAuditRecord(DateTimeOffset.Now, JobAuditRecordType.Succeeded));
+        this._pendingEvents.Add(new JobAuditRecord(DateTimeOffset.UtcNow, JobAuditRecordType.Succeeded));
     }
 
     public void Requeue()
@@ -69,10 +69,10 @@ public sealed class Job(JobId id, int version, JobData data, JobOptions options,
             throw new InvalidOperationException("Only failed jobs can be requeued.");
 
         this.Status = JobStatus.Scheduled;
-        this.ScheduledAt = DateTimeOffset.Now;
+        this.ScheduledAt = DateTimeOffset.UtcNow;
         this.RunnerId = null;
         this.RetriesCount++;
-        this._pendingEvents.Add(new JobAuditRecord(DateTimeOffset.Now, JobAuditRecordType.Scheduled, this.ScheduledAt.UtcDateTime.ToString("O")));
+        this._pendingEvents.Add(new JobAuditRecord(DateTimeOffset.UtcNow, JobAuditRecordType.Scheduled, this.ScheduledAt.UtcDateTime.ToString("O")));
     }
 
     public void Failed(string failureReason)
@@ -80,16 +80,16 @@ public sealed class Job(JobId id, int version, JobData data, JobOptions options,
         if(this.Status != JobStatus.Running)
             throw new InvalidOperationException("Only running jobs can be marked as failed.");
         
-        this._pendingEvents.Add(new JobAuditRecord(DateTimeOffset.Now, JobAuditRecordType.Failed, failureReason));
+        this._pendingEvents.Add(new JobAuditRecord(DateTimeOffset.UtcNow, JobAuditRecordType.Failed, failureReason));
         this.RunnerId = null;
         
         if (this.Options.RetryDelaysInSeconds.Count > this.RetriesCount)
         {
             var delayInSeconds = this.Options.RetryDelaysInSeconds[this.RetriesCount];
-            this.ScheduledAt = DateTimeOffset.Now.AddSeconds(delayInSeconds);
+            this.ScheduledAt = DateTimeOffset.UtcNow.AddSeconds(delayInSeconds);
             this.RetriesCount++;
             this.Status = JobStatus.Scheduled;
-            this._pendingEvents.Add(new JobAuditRecord(DateTimeOffset.Now, JobAuditRecordType.Scheduled, this.ScheduledAt.UtcDateTime.ToString("O")));
+            this._pendingEvents.Add(new JobAuditRecord(DateTimeOffset.UtcNow, JobAuditRecordType.Scheduled, this.ScheduledAt.UtcDateTime.ToString("O")));
             return;
         }
         

@@ -117,7 +117,7 @@ internal sealed class Store(JobsDbContext db) : IStore
         {
             recurrenceId = await db.Recurrences
                 .Where(x => x.Key == job.RecurrenceId.Value.Value)
-                .Select(x => x.Id)
+                .Select(x => (long?)x.Id)
                 .FirstOrDefaultAsync(stoppingToken);
         }
         

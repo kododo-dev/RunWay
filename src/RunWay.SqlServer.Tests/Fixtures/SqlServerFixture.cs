@@ -1,18 +1,16 @@
-using DotNet.Testcontainers.Builders;
 using Kododo.RunWay;
-using Kododo.RunWay.PostgreSQL;
+using Kododo.RunWay.SqlServer;
 using Kododo.RunWay.Storage.Tests;
-using Npgsql;
-using Testcontainers.PostgreSql;
+using Microsoft.Data.SqlClient;
+using Testcontainers.MsSql;
 using Xunit;
 
-namespace Kododo.RunWay.PostgreSQL.Tests.Fixtures;
+namespace Kododo.RunWay.SqlServer.Tests.Fixtures;
 
-public sealed class PostgreSqlFixture : IAsyncLifetime, IStorageTestFixture
+public sealed class SqlServerFixture : IAsyncLifetime, IStorageTestFixture
 {
-    private readonly PostgreSqlContainer _container = new PostgreSqlBuilder("postgres:16-alpine")
-        .WithWaitStrategy(Wait.ForUnixContainer().UntilInternalTcpPortIsAvailable(5432))
-        .Build();
+    private readonly MsSqlContainer _container =
+        new MsSqlBuilder("mcr.microsoft.com/mssql/server:2022-latest").Build();
 
     public string ConnectionString => _container.GetConnectionString();
 
@@ -21,13 +19,13 @@ public sealed class PostgreSqlFixture : IAsyncLifetime, IStorageTestFixture
     public Task DisposeAsync() => _container.DisposeAsync().AsTask();
 
     public void ConfigureStorage(IRunWayConfiguration config) =>
-        config.UsePostgreSQL(_ => new NpgsqlConnection(ConnectionString));
+        config.UseSqlServer(_ => new SqlConnection(ConnectionString));
 
     public async Task ResetAsync()
     {
-        await using var conn = new NpgsqlConnection(ConnectionString);
+        await using var conn = new SqlConnection(ConnectionString);
         await conn.OpenAsync();
-        await using var cmd = new NpgsqlCommand("""
+        await using var cmd = new SqlCommand("""
             DELETE FROM runway.jobs_audit;
             DELETE FROM runway.jobs;
             DELETE FROM runway.runner_job_types;

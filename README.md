@@ -13,9 +13,11 @@ A live demo is available at [kododo.dev/runway/demo](https://kododo.dev/runway/d
 |---|---|---|
 | `Kododo.RunWay` | [![NuGet](https://img.shields.io/nuget/v/Kododo.RunWay)](https://www.nuget.org/packages/Kododo.RunWay) | Core library — DI registration and job scheduling |
 | `Kododo.RunWay.Core` | [![NuGet](https://img.shields.io/nuget/v/Kododo.RunWay.Core)](https://www.nuget.org/packages/Kododo.RunWay.Core) | Abstractions and interfaces (for extension authors) |
+| `Kododo.RunWay.EntityFramework` | [![NuGet](https://img.shields.io/nuget/v/Kododo.RunWay.EntityFramework)](https://www.nuget.org/packages/Kododo.RunWay.EntityFramework) | EF Core storage foundation (for building custom providers) |
 | `Kododo.RunWay.Runner` | [![NuGet](https://img.shields.io/nuget/v/Kododo.RunWay.Runner)](https://www.nuget.org/packages/Kododo.RunWay.Runner) | Background worker — processes jobs |
 | `Kododo.RunWay.Dashboard` | [![NuGet](https://img.shields.io/nuget/v/Kododo.RunWay.Dashboard)](https://www.nuget.org/packages/Kododo.RunWay.Dashboard) | Embedded web dashboard |
 | `Kododo.RunWay.PostgreSQL` | [![NuGet](https://img.shields.io/nuget/v/Kododo.RunWay.PostgreSQL)](https://www.nuget.org/packages/Kododo.RunWay.PostgreSQL) | PostgreSQL storage provider |
+| `Kododo.RunWay.SqlServer` | [![NuGet](https://img.shields.io/nuget/v/Kododo.RunWay.SqlServer)](https://www.nuget.org/packages/Kododo.RunWay.SqlServer) | SQL Server storage provider |
 
 ## Quick start
 
@@ -189,7 +191,7 @@ The dashboard shows job counts by status, a paginated job list, per-job audit ti
 ## Requirements
 
 - .NET 8, 9, or 10
-- PostgreSQL 12 or later (additional storage providers coming soon)
+- A storage provider: PostgreSQL 12 or later, or SQL Server 2016 or later (incl. Azure SQL Database)
 
 ## License
 

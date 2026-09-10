@@ -34,7 +34,6 @@ jobs:
             8.x
             9.x
             10.x
-          dotnet-quality: preview
 
       - name: Restore
         run: dotnet restore src/RunWay.Tests/RunWay.Tests.csproj
@@ -82,7 +81,6 @@ jobs:
             8.x
             9.x
             10.x
-          dotnet-quality: preview
 
       - name: Restore
         run: dotnet restore src/RunWay.PostgreSQL.Tests/RunWay.PostgreSQL.Tests.csproj
@@ -101,4 +99,51 @@ jobs:
         if: always()
         with:
           name: postgres-test-results
+          path: "**/*.trx"
+
+  sqlserver:
+    name: SQL Server Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: src/RunWay.Dashboard/SPA/package-lock.json
+
+      - name: Build SPA
+        working-directory: src/RunWay.Dashboard/SPA
+        run: |
+          npm ci
+          npm run build
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.x
+            9.x
+            10.x
+
+      - name: Restore
+        run: dotnet restore src/RunWay.SqlServer.Tests/RunWay.SqlServer.Tests.csproj
+
+      - name: Build
+        run: dotnet build src/RunWay.SqlServer.Tests/RunWay.SqlServer.Tests.csproj --no-restore --configuration Release
+
+      - name: Test
+        run: >
+          dotnet test src/RunWay.SqlServer.Tests/RunWay.SqlServer.Tests.csproj
+          --no-build --configuration Release
+          --logger "trx;LogFileName=sqlserver-results.trx"
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sqlserver-test-results
           path: "**/*.trx"

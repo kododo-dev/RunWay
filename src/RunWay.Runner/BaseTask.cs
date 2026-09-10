@@ -53,7 +53,7 @@ internal abstract class BaseTask(IServiceProvider serviceProvider, ILogger logge
         CancellationToken stoppingToken)
     {
         var recurrenceCalculator = scope.ServiceProvider.GetRequiredService<IRecurrenceCalculator>();
-        var nextOccurrence = recurrenceCalculator.CalculateNextOccurrence(recurrence.Rule, DateTime.UtcNow);
+        var nextOccurrence = recurrenceCalculator.CalculateNextOccurrence(recurrence.Rule, DateTimeOffset.UtcNow);
             
         await using var transaction = await store.BeginTransactionAsync(stoppingToken);
 

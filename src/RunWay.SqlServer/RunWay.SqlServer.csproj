@@ -2,19 +2,20 @@
 
     <ItemGroup>
       <ProjectReference Include="..\RunWay.Core\RunWay.Core.csproj" />
+      <ProjectReference Include="..\RunWay.EntityFramework\RunWay.EntityFramework.csproj" />
+      <ProjectReference Include="..\RunWay\RunWay.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
-      <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
-      <PackageReference Include="Microsoft.Extensions.Options" />
-      <PackageReference Include="NCrontab" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
+      <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
     </ItemGroup>
 
     <ItemGroup>
-      <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
-        <_Parameter1>Kododo.RunWay.Tests</_Parameter1>
-      </AssemblyAttribute>
+      <Folder Include="Migrations\" />
     </ItemGroup>
 
     <ItemGroup>
@@ -23,7 +24,7 @@
     </ItemGroup>
 
     <PropertyGroup>
-      <Description>Lightweight background job queue for .NET. Schedule and persist jobs with priority, retries, timeout support, and outbox pattern integration.</Description>
+      <Description>SQL Server storage provider for RunWay. Persists jobs and runner state using Entity Framework Core with automatic migrations.</Description>
       <PackageLicenseExpression>MIT</PackageLicenseExpression>
       <RepositoryUrl>https://github.com/kododo-dev/RunWay</RepositoryUrl>
       <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
