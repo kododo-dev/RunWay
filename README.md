@@ -195,4 +195,4 @@ The dashboard shows job counts by status, a paginated job list, per-job audit ti
 
 ## License
 
-MIT
+[MIT](LICENSE)
