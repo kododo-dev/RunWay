@@ -92,31 +92,7 @@ jobs:
 
       - name: Push to NuGet
         run: |
-          dotnet nuget push ./nupkgs/Kododo.RunWay.Core.*.nupkg \
-            --api-key ${{ secrets.NUGET_API_KEY }} \
-            --source https://api.nuget.org/v3/index.json \
-            --skip-duplicate
-          dotnet nuget push ./nupkgs/Kododo.RunWay.*.nupkg \
-            --api-key ${{ secrets.NUGET_API_KEY }} \
-            --source https://api.nuget.org/v3/index.json \
-            --skip-duplicate
-          dotnet nuget push ./nupkgs/Kododo.RunWay.EntityFramework.*.nupkg \
-            --api-key ${{ secrets.NUGET_API_KEY }} \
-            --source https://api.nuget.org/v3/index.json \
-            --skip-duplicate
-          dotnet nuget push ./nupkgs/Kododo.RunWay.Runner.*.nupkg \
-            --api-key ${{ secrets.NUGET_API_KEY }} \
-            --source https://api.nuget.org/v3/index.json \
-            --skip-duplicate
-          dotnet nuget push ./nupkgs/Kododo.RunWay.Dashboard.*.nupkg \
-            --api-key ${{ secrets.NUGET_API_KEY }} \
-            --source https://api.nuget.org/v3/index.json \
-            --skip-duplicate
-          dotnet nuget push ./nupkgs/Kododo.RunWay.PostgreSQL.*.nupkg \
-            --api-key ${{ secrets.NUGET_API_KEY }} \
-            --source https://api.nuget.org/v3/index.json \
-            --skip-duplicate
-          dotnet nuget push ./nupkgs/Kododo.RunWay.SqlServer.*.nupkg \
+          dotnet nuget push ./nupkgs/*.nupkg \
             --api-key ${{ secrets.NUGET_API_KEY }} \
             --source https://api.nuget.org/v3/index.json \
             --skip-duplicate
