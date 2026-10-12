@@ -1,4 +1,3 @@
-using FluentAssertions;
 using Kododo.RunWay.Core.Jobs;
 using Kododo.RunWay.Core.Jobs.Audit;
 using Kododo.RunWay.Core.Runners;
@@ -26,7 +25,7 @@ public abstract class StoreJobTestsBase<TFixture> : StoreTestBase<TFixture>
     public async Task CreateAsync_ReturnsNonEmptyJobId()
     {
         var job = await Store.CreateAsync(NewJob(), CancellationToken.None);
-        job.Id.Value.Should().NotBeNullOrEmpty();
+        Assert.False(string.IsNullOrEmpty(job.Id.Value));
     }
 
     [Fact]
@@ -35,8 +34,8 @@ public abstract class StoreJobTestsBase<TFixture> : StoreTestBase<TFixture>
         var job = await Store.CreateAsync(NewJob(), CancellationToken.None);
         var found = await Store.FindAsync(job.Id, CancellationToken.None);
 
-        found.Should().NotBeNull();
-        found.Id.Should().Be(job.Id);
+        Assert.NotNull(found);
+        Assert.Equal(job.Id, found.Id);
     }
 
     [Fact]
@@ -45,8 +44,8 @@ public abstract class StoreJobTestsBase<TFixture> : StoreTestBase<TFixture>
         var job = await Store.CreateAsync(NewJob(), CancellationToken.None);
         var details = await Store.GetDetailsAsync(job.Id, CancellationToken.None);
 
-        details.Audit.Should().Contain(a => a.Type == JobAuditRecordType.Created);
-        details.Audit.Should().Contain(a => a.Type == JobAuditRecordType.Scheduled);
+        Assert.Contains(details.Audit, a => a.Type == JobAuditRecordType.Created);
+        Assert.Contains(details.Audit, a => a.Type == JobAuditRecordType.Scheduled);
     }
 
     [Fact]
@@ -59,14 +58,14 @@ public abstract class StoreJobTestsBase<TFixture> : StoreTestBase<TFixture>
 
         var found = await Store.FindAsync(job.Id, CancellationToken.None);
 
-        found!.Data.Type.Should().Be("MyJobType");
+        Assert.Equal("MyJobType", found!.Data.Type);
     }
 
     [Fact]
     public async Task FindAsync_WhenJobDoesNotExist_ReturnsNull()
     {
         var result = await Store.FindAsync(new JobId("999999"), CancellationToken.None);
-        result.Should().BeNull();
+        Assert.Null(result);
     }
 
     [Fact]
@@ -78,7 +77,7 @@ public abstract class StoreJobTestsBase<TFixture> : StoreTestBase<TFixture>
         await Store.UpdateAsync(job, CancellationToken.None);
 
         var updated = await Store.FindAsync(job.Id, CancellationToken.None);
-        updated!.Status.Should().Be(JobStatus.Running);
+        Assert.Equal(JobStatus.Running, updated!.Status);
     }
 
     [Fact]
@@ -90,7 +89,7 @@ public abstract class StoreJobTestsBase<TFixture> : StoreTestBase<TFixture>
         await Store.UpdateAsync(job, CancellationToken.None);
 
         var details = await Store.GetDetailsAsync(job.Id, CancellationToken.None);
-        details.Audit.Should().Contain(a => a.Type == JobAuditRecordType.Started);
+        Assert.Contains(details.Audit, a => a.Type == JobAuditRecordType.Started);
     }
 
     [Fact]
@@ -106,7 +105,7 @@ public abstract class StoreJobTestsBase<TFixture> : StoreTestBase<TFixture>
         await Store.UpdateAsync(running, CancellationToken.None);
 
         var result = await Store.FindAsync(job.Id, CancellationToken.None);
-        result!.Status.Should().Be(JobStatus.Succeeded);
+        Assert.Equal(JobStatus.Succeeded, result!.Status);
     }
 
     [Fact]
@@ -119,8 +118,8 @@ public abstract class StoreJobTestsBase<TFixture> : StoreTestBase<TFixture>
             new JobsQuery { Pagination = new Pagination(1, 3) },
             CancellationToken.None);
 
-        result.Items.Should().HaveCount(3);
-        result.TotalItems.Should().Be(5);
+        Assert.Equal(3, result.Items.Count);
+        Assert.Equal(5, result.TotalItems);
     }
 
     [Fact]
@@ -133,7 +132,7 @@ public abstract class StoreJobTestsBase<TFixture> : StoreTestBase<TFixture>
             new JobsQuery { Pagination = new Pagination(2, 3) },
             CancellationToken.None);
 
-        result.Items.Should().HaveCount(2);
+        Assert.Equal(2, result.Items.Count);
     }
 
     [Fact]
@@ -151,8 +150,8 @@ public abstract class StoreJobTestsBase<TFixture> : StoreTestBase<TFixture>
             Filter = new JobsFilter { Statuses = [JobStatus.Running] }
         }, CancellationToken.None);
 
-        result.Items.Should().ContainSingle();
-        result.Items.Single().Status.Should().Be(JobStatus.Running);
+        Assert.Single(result.Items);
+        Assert.Equal(JobStatus.Running, result.Items.Single().Status);
     }
 
     [Fact]
@@ -167,7 +166,7 @@ public abstract class StoreJobTestsBase<TFixture> : StoreTestBase<TFixture>
             Filter = new JobsFilter { MaxScheduledAt = DateTimeOffset.UtcNow }
         }, CancellationToken.None);
 
-        result.Items.Should().ContainSingle();
+        Assert.Single(result.Items);
     }
 
     [Fact]
@@ -177,7 +176,7 @@ public abstract class StoreJobTestsBase<TFixture> : StoreTestBase<TFixture>
         await Store.CreateAsync(NewJob(), CancellationToken.None);
 
         var count = await Store.GetCountAsync(new JobsFilter(), CancellationToken.None);
-        count.Should().Be(2);
+        Assert.Equal(2, count);
     }
 
     [Fact]
@@ -193,7 +192,7 @@ public abstract class StoreJobTestsBase<TFixture> : StoreTestBase<TFixture>
             new JobsFilter { Statuses = [JobStatus.Scheduled] },
             CancellationToken.None);
 
-        count.Should().Be(1);
+        Assert.Equal(1, count);
     }
 
     [Fact]
@@ -205,10 +204,10 @@ public abstract class StoreJobTestsBase<TFixture> : StoreTestBase<TFixture>
 
         var details = await Store.GetDetailsAsync(job.Id, CancellationToken.None);
 
-        details.Id.Should().Be(job.Id);
-        details.Audit.Should().Contain(a => a.Type == JobAuditRecordType.Created);
-        details.Audit.Should().Contain(a => a.Type == JobAuditRecordType.Scheduled);
-        details.Audit.Should().Contain(a => a.Type == JobAuditRecordType.Started);
+        Assert.Equal(job.Id, details.Id);
+        Assert.Contains(details.Audit, a => a.Type == JobAuditRecordType.Created);
+        Assert.Contains(details.Audit, a => a.Type == JobAuditRecordType.Scheduled);
+        Assert.Contains(details.Audit, a => a.Type == JobAuditRecordType.Started);
     }
 
     [Fact]
@@ -221,8 +220,8 @@ public abstract class StoreJobTestsBase<TFixture> : StoreTestBase<TFixture>
             Filter = new JobsFilter { Statuses = [JobStatus.Scheduled] }
         }, CancellationToken.None);
 
-        result.Should().NotBeNull();
-        result.Id.Should().Be(job.Id);
+        Assert.NotNull(result);
+        Assert.Equal(job.Id, result.Id);
     }
 
     [Fact]
@@ -233,7 +232,7 @@ public abstract class StoreJobTestsBase<TFixture> : StoreTestBase<TFixture>
             Filter = new JobsFilter { Statuses = [JobStatus.Failed] }
         }, CancellationToken.None);
 
-        result.Should().BeNull();
+        Assert.Null(result);
     }
 
     [Fact]
@@ -248,8 +247,8 @@ public abstract class StoreJobTestsBase<TFixture> : StoreTestBase<TFixture>
         await Store.UpdateAsync(running, CancellationToken.None);
 
         var result = await Store.FindAsync(job.Id, CancellationToken.None);
-        result!.Status.Should().Be(JobStatus.Scheduled);
-        result.RetriesCount.Should().Be(1);
+        Assert.Equal(JobStatus.Scheduled, result!.Status);
+        Assert.Equal(1, result.RetriesCount);
     }
 
     [Fact]
@@ -261,7 +260,7 @@ public abstract class StoreJobTestsBase<TFixture> : StoreTestBase<TFixture>
         var freshStore = freshScope.ServiceProvider.GetRequiredService<IStore>();
         var result = await freshStore.FindAsync(job.Id, CancellationToken.None);
 
-        result.Should().NotBeNull();
-        result.Id.Should().Be(job.Id);
+        Assert.NotNull(result);
+        Assert.Equal(job.Id, result.Id);
     }
 }

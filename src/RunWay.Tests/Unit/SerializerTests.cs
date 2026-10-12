@@ -1,4 +1,3 @@
-using FluentAssertions;
 using Kododo.RunWay.Core.Serialization;
 using Xunit;
 
@@ -14,14 +13,15 @@ public class SerializerTests
     public void Serialize_ReturnsJobDataWithCorrectType()
     {
         var result = _serializer.Serialize(new SamplePayload("test", 42));
-        result.Type.Should().Be(typeof(SamplePayload).FullName);
+        Assert.Equal(typeof(SamplePayload).FullName, result.Type);
     }
 
     [Fact]
     public void Serialize_ReturnsJobDataWithSerializedJson()
     {
         var result = _serializer.Serialize(new SamplePayload("test", 42));
-        result.Data.Should().Contain("test").And.Contain("42");
+        Assert.Contains("test", result.Data);
+        Assert.Contains("42", result.Data);
     }
 
     [Fact]
@@ -30,9 +30,9 @@ public class SerializerTests
         var jobData = _serializer.Serialize(new SamplePayload("hello", 99));
         var result   = _serializer.Deserialize(jobData);
 
-        result.Should().BeOfType<SamplePayload>();
-        ((SamplePayload)result).Name.Should().Be("hello");
-        ((SamplePayload)result).Value.Should().Be(99);
+        Assert.IsType<SamplePayload>(result);
+        Assert.Equal("hello", ((SamplePayload)result).Name);
+        Assert.Equal(99, ((SamplePayload)result).Value);
     }
 
     [Fact]
@@ -40,7 +40,7 @@ public class SerializerTests
     {
         var jobData = new Core.Jobs.JobData("NonExistent.Type.That.DoesNotExist", "{}");
         var act = () => _serializer.Deserialize(jobData);
-        act.Should().Throw<InvalidOperationException>();
+        Assert.ThrowsAny<InvalidOperationException>(act);
     }
 
     [Fact]
@@ -50,13 +50,13 @@ public class SerializerTests
         var jobData  = _serializer.Serialize(original);
         var result   = (SamplePayload)_serializer.Deserialize(jobData);
 
-        result.Should().Be(original);
+        Assert.Equal(original, result);
     }
 
     [Fact]
     public void SerializeType_ReturnsFullName()
     {
         var result = _serializer.SerializeType(typeof(SamplePayload));
-        result.Should().Be(typeof(SamplePayload).FullName);
+        Assert.Equal(typeof(SamplePayload).FullName, result);
     }
 }

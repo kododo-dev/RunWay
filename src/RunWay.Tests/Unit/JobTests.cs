@@ -1,4 +1,3 @@
-using FluentAssertions;
 using Kododo.RunWay.Core.Jobs;
 using Kododo.RunWay.Core.Jobs.Audit;
 using Kododo.RunWay.Core.Runners;
@@ -25,22 +24,23 @@ public class JobTests
     public void CreateNew_SetsStatusToScheduled()
     {
         var job = NewScheduled();
-        job.Status.Should().Be(JobStatus.Scheduled);
+        Assert.Equal(JobStatus.Scheduled, job.Status);
     }
 
     [Fact]
     public void CreateNew_RunnerId_IsNull()
     {
         var job = NewScheduled();
-        job.RunnerId.Should().BeNull();
+        Assert.Null(job.RunnerId);
     }
 
     [Fact]
     public void CreateNew_AddsPendingCreatedAndScheduledAuditEvents()
     {
         var job = NewScheduled();
-        job.PendingEvents.Select(e => e.Type)
-            .Should().BeEquivalentTo([JobAuditRecordType.Created, JobAuditRecordType.Scheduled]);
+        Assert.Equal(
+            new[] { JobAuditRecordType.Created, JobAuditRecordType.Scheduled }.Order(),
+            job.PendingEvents.Select(e => e.Type).Order());
     }
 
     [Fact]
@@ -48,7 +48,7 @@ public class JobTests
     {
         var job = NewScheduled();
         job.Started(SampleRunner);
-        job.Status.Should().Be(JobStatus.Running);
+        Assert.Equal(JobStatus.Running, job.Status);
     }
 
     [Fact]
@@ -56,7 +56,7 @@ public class JobTests
     {
         var job = NewScheduled();
         job.Started(SampleRunner);
-        job.RunnerId.Should().Be(SampleRunner.Id);
+        Assert.Equal(SampleRunner.Id, job.RunnerId);
     }
 
     [Fact]
@@ -64,7 +64,7 @@ public class JobTests
     {
         var job = NewScheduled();
         job.Started(SampleRunner);
-        job.PendingEvents.Should().Contain(e => e.Type == JobAuditRecordType.Started);
+        Assert.Contains(job.PendingEvents, e => e.Type == JobAuditRecordType.Started);
     }
 
     [Fact]
@@ -72,7 +72,7 @@ public class JobTests
     {
         var job = NewRunning();
         var act = () => job.Started(SampleRunner);
-        act.Should().Throw<InvalidOperationException>();
+        Assert.ThrowsAny<InvalidOperationException>(act);
     }
 
     [Fact]
@@ -82,7 +82,7 @@ public class JobTests
         job.Started(SampleRunner);
 
         var act = () => job.Started(SampleRunner);
-        act.Should().Throw<InvalidOperationException>();
+        Assert.ThrowsAny<InvalidOperationException>(act);
     }
 
     [Fact]
@@ -90,7 +90,7 @@ public class JobTests
     {
         var job = NewRunning();
         job.Succeeded();
-        job.Status.Should().Be(JobStatus.Succeeded);
+        Assert.Equal(JobStatus.Succeeded, job.Status);
     }
 
     [Fact]
@@ -98,7 +98,7 @@ public class JobTests
     {
         var job = NewRunning();
         job.Succeeded();
-        job.RunnerId.Should().BeNull();
+        Assert.Null(job.RunnerId);
     }
 
     [Fact]
@@ -106,7 +106,7 @@ public class JobTests
     {
         var job = NewRunning();
         job.Succeeded();
-        job.PendingEvents.Should().Contain(e => e.Type == JobAuditRecordType.Succeeded);
+        Assert.Contains(job.PendingEvents, e => e.Type == JobAuditRecordType.Succeeded);
     }
 
     [Fact]
@@ -114,7 +114,7 @@ public class JobTests
     {
         var job = NewScheduled();
         var act = () => job.Succeeded();
-        act.Should().Throw<InvalidOperationException>();
+        Assert.ThrowsAny<InvalidOperationException>(act);
     }
 
     [Fact]
@@ -122,7 +122,7 @@ public class JobTests
     {
         var job = NewRunning(retryDelays: []);
         job.Failed("error");
-        job.Status.Should().Be(JobStatus.Failed);
+        Assert.Equal(JobStatus.Failed, job.Status);
     }
 
     [Fact]
@@ -130,7 +130,7 @@ public class JobTests
     {
         var job = NewRunning(retryDelays: []);
         job.Failed("error");
-        job.RunnerId.Should().BeNull();
+        Assert.Null(job.RunnerId);
     }
 
     [Fact]
@@ -138,7 +138,7 @@ public class JobTests
     {
         var job = NewRunning(retryDelays: [10, 60]);
         job.Failed("error");
-        job.Status.Should().Be(JobStatus.Scheduled);
+        Assert.Equal(JobStatus.Scheduled, job.Status);
     }
 
     [Fact]
@@ -146,7 +146,7 @@ public class JobTests
     {
         var job = NewRunning(retryDelays: [10, 60]);
         job.Failed("error");
-        job.RetriesCount.Should().Be(1);
+        Assert.Equal(1, job.RetriesCount);
     }
 
     [Fact]
@@ -154,7 +154,7 @@ public class JobTests
     {
         var job = NewRunning(retryDelays: [10]);
         job.Failed("error");
-        job.PendingEvents.Should().Contain(e => e.Type == JobAuditRecordType.Scheduled);
+        Assert.Contains(job.PendingEvents, e => e.Type == JobAuditRecordType.Scheduled);
     }
 
     [Fact]
@@ -166,7 +166,7 @@ public class JobTests
         job.Started(SampleRunner);
         job.Failed("second failure");
 
-        job.Status.Should().Be(JobStatus.Failed);
+        Assert.Equal(JobStatus.Failed, job.Status);
     }
 
     [Fact]
@@ -174,7 +174,7 @@ public class JobTests
     {
         var job = NewScheduled();
         var act = () => job.Failed("error");
-        act.Should().Throw<InvalidOperationException>();
+        Assert.ThrowsAny<InvalidOperationException>(act);
     }
 
     [Fact]
@@ -183,7 +183,7 @@ public class JobTests
         var job = NewRunning(retryDelays: []);
         job.Failed("error");
         job.Requeue();
-        job.Status.Should().Be(JobStatus.Scheduled);
+        Assert.Equal(JobStatus.Scheduled, job.Status);
     }
 
     [Fact]
@@ -193,7 +193,7 @@ public class JobTests
         job.Failed("error");
         var countBefore = job.RetriesCount;
         job.Requeue();
-        job.RetriesCount.Should().Be(countBefore + 1);
+        Assert.Equal(countBefore + 1, job.RetriesCount);
     }
 
     [Fact]
@@ -202,7 +202,7 @@ public class JobTests
         var job = NewRunning(retryDelays: []);
         job.Failed("error");
         job.Requeue();
-        job.RunnerId.Should().BeNull();
+        Assert.Null(job.RunnerId);
     }
 
     [Fact]
@@ -211,7 +211,7 @@ public class JobTests
         var job = NewRunning(retryDelays: []);
         job.Failed("error");
         job.Requeue();
-        job.PendingEvents.Should().Contain(e => e.Type == JobAuditRecordType.Scheduled);
+        Assert.Contains(job.PendingEvents, e => e.Type == JobAuditRecordType.Scheduled);
     }
 
     [Fact]
@@ -219,7 +219,7 @@ public class JobTests
     {
         var job = NewScheduled();
         var act = () => job.Requeue();
-        act.Should().Throw<InvalidOperationException>();
+        Assert.ThrowsAny<InvalidOperationException>(act);
     }
 
     [Fact]
@@ -227,6 +227,6 @@ public class JobTests
     {
         var job = NewRunning();
         var act = () => job.Requeue();
-        act.Should().Throw<InvalidOperationException>();
+        Assert.ThrowsAny<InvalidOperationException>(act);
     }
 }
