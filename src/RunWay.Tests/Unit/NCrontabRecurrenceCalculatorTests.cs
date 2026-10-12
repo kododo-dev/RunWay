@@ -1,4 +1,3 @@
-using FluentAssertions;
 using Xunit;
 
 namespace Kododo.RunWay.Tests.Unit;
@@ -12,7 +11,7 @@ public class NCrontabRecurrenceCalculatorTests
     {
         var from = new DateTimeOffset(2024, 1, 1, 12, 0, 0, TimeSpan.Zero);
         var result = _calculator.CalculateNextOccurrence("0 * * * *", from);
-        result.Should().BeAfter(from);
+        Assert.True(result > from, $"Expected {result:O} to be after {from:O}.");
     }
 
     [Fact]
@@ -20,7 +19,7 @@ public class NCrontabRecurrenceCalculatorTests
     {
         var from = new DateTimeOffset(2024, 1, 1, 12, 0, 0, TimeSpan.Zero);
         var result = _calculator.CalculateNextOccurrence("*/5 * * * *", from);
-        result.Should().BeAfter(from);
+        Assert.True(result > from, $"Expected {result:O} to be after {from:O}.");
     }
 
     [Fact]
@@ -28,7 +27,7 @@ public class NCrontabRecurrenceCalculatorTests
     {
         var from = new DateTimeOffset(2024, 1, 1, 12, 0, 0, TimeSpan.Zero);
         var result = _calculator.CalculateNextOccurrence("*/5 * * * *", from);
-        result.Minute.Should().Be(5);
+        Assert.Equal(5, result.Minute);
     }
 
     [Fact]
@@ -36,7 +35,7 @@ public class NCrontabRecurrenceCalculatorTests
     {
         var from = new DateTimeOffset(2024, 1, 1, 12, 3, 0, TimeSpan.Zero);
         var result = _calculator.CalculateNextOccurrence("*/5 * * * *", from);
-        result.Minute.Should().Be(5);
+        Assert.Equal(5, result.Minute);
     }
 
     [Fact]
@@ -44,8 +43,8 @@ public class NCrontabRecurrenceCalculatorTests
     {
         var from = new DateTimeOffset(2024, 1, 1, 12, 0, 0, TimeSpan.Zero);
         var result = _calculator.CalculateNextOccurrence("0 * * * *", from);
-        result.Hour.Should().Be(13);
-        result.Minute.Should().Be(0);
+        Assert.Equal(13, result.Hour);
+        Assert.Equal(0, result.Minute);
     }
 
     [Fact]
@@ -53,7 +52,7 @@ public class NCrontabRecurrenceCalculatorTests
     {
         var from = DateTimeOffset.UtcNow;
         var act = () => _calculator.CalculateNextOccurrence("not a cron", from);
-        act.Should().Throw<Exception>();
+        Assert.ThrowsAny<Exception>(() => act());
     }
 
     [Fact]
@@ -61,6 +60,6 @@ public class NCrontabRecurrenceCalculatorTests
     {
         var from = new DateTimeOffset(2024, 1, 1, 12, 0, 0, TimeSpan.Zero);
         var result = _calculator.CalculateNextOccurrence("*/5 * * * *", from);
-        result.Offset.Should().Be(TimeSpan.Zero);
+        Assert.Equal(TimeSpan.Zero, result.Offset);
     }
 }

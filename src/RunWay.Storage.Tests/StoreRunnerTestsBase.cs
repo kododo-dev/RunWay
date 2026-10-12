@@ -1,4 +1,3 @@
-using FluentAssertions;
 using Kododo.RunWay.Core.Runners;
 using Xunit;
 
@@ -13,7 +12,7 @@ public abstract class StoreRunnerTestsBase<TFixture> : StoreTestBase<TFixture>
     public async Task RegisterRunnerAsync_ReturnsNonEmptyRunnerId()
     {
         var runnerId = await Store.RegisterRunnerAsync("runner-1", ["JobA"], DateTimeOffset.UtcNow.AddMinutes(1), CancellationToken.None);
-        runnerId.Value.Should().NotBeNullOrEmpty();
+        Assert.False(string.IsNullOrEmpty(runnerId.Value));
     }
 
     [Fact]
@@ -23,7 +22,7 @@ public abstract class StoreRunnerTestsBase<TFixture> : StoreTestBase<TFixture>
 
         var runners = await Store.GetAllRunnersAsync(CancellationToken.None);
 
-        runners.Should().ContainSingle(r => r.Id == runnerId);
+        Assert.Single(runners, r => r.Id == runnerId);
     }
 
     [Fact]
@@ -33,14 +32,14 @@ public abstract class StoreRunnerTestsBase<TFixture> : StoreTestBase<TFixture>
 
         var runners = await Store.GetAllRunnersAsync(CancellationToken.None);
 
-        runners.Should().ContainSingle(r => r.Name == "my-runner");
+        Assert.Single(runners, r => r.Name == "my-runner");
     }
 
     [Fact]
     public async Task GetAllRunnersAsync_WhenNoRunners_ReturnsEmpty()
     {
         var runners = await Store.GetAllRunnersAsync(CancellationToken.None);
-        runners.Should().BeEmpty();
+        Assert.Empty(runners);
     }
 
     [Fact]
@@ -51,8 +50,8 @@ public abstract class StoreRunnerTestsBase<TFixture> : StoreTestBase<TFixture>
 
         var runners = await Store.GetAllRunnersAsync(CancellationToken.None);
 
-        runners.Should().HaveCount(2);
-        runners.Select(r => r.Name).Should().BeEquivalentTo("runner-1", "runner-2");
+        Assert.Equal(2, runners.Count);
+        Assert.Equal(new[] { "runner-1", "runner-2" }, runners.Select(r => r.Name).Order(StringComparer.Ordinal));
     }
 
     [Fact]
@@ -62,7 +61,7 @@ public abstract class StoreRunnerTestsBase<TFixture> : StoreTestBase<TFixture>
 
         var runners = await Store.GetAllRunnersAsync(CancellationToken.None);
 
-        runners.Single().Status.Should().Be(RunnerStatus.Online);
+        Assert.Equal(RunnerStatus.Online, runners.Single().Status);
     }
 
     [Fact]
@@ -71,7 +70,7 @@ public abstract class StoreRunnerTestsBase<TFixture> : StoreTestBase<TFixture>
         var runnerId = await Store.RegisterRunnerAsync("runner-1", ["JobA"], DateTimeOffset.UtcNow.AddMinutes(1), CancellationToken.None);
 
         var act = async () => await Store.KeepAliveAsync(runnerId, DateTimeOffset.UtcNow.AddMinutes(1), CancellationToken.None);
-        await act.Should().NotThrowAsync();
+        Assert.Null(await Record.ExceptionAsync(act));
     }
 
     [Fact]
@@ -81,7 +80,7 @@ public abstract class StoreRunnerTestsBase<TFixture> : StoreTestBase<TFixture>
         await Store.RemoveRunnerAsync(runnerId, CancellationToken.None);
 
         var runners = await Store.GetAllRunnersAsync(CancellationToken.None);
-        runners.Should().NotContain(r => r.Id == runnerId);
+        Assert.DoesNotContain(runners, r => r.Id == runnerId);
     }
 
     [Fact]
@@ -93,7 +92,7 @@ public abstract class StoreRunnerTestsBase<TFixture> : StoreTestBase<TFixture>
         await Store.RemoveRunnerAsync(runnerId1, CancellationToken.None);
 
         var runners = await Store.GetAllRunnersAsync(CancellationToken.None);
-        runners.Should().ContainSingle(r => r.Id == runnerId2);
+        Assert.Single(runners, r => r.Id == runnerId2);
     }
 
     [Fact]
@@ -103,7 +102,7 @@ public abstract class StoreRunnerTestsBase<TFixture> : StoreTestBase<TFixture>
 
         var details = await Store.GetRunnerDetailsAsync(runnerId, CancellationToken.None);
 
-        details.Name.Should().Be("details-runner");
+        Assert.Equal("details-runner", details.Name);
     }
 
     [Fact]
@@ -113,7 +112,7 @@ public abstract class StoreRunnerTestsBase<TFixture> : StoreTestBase<TFixture>
 
         var details = await Store.GetRunnerDetailsAsync(runnerId, CancellationToken.None);
 
-        details.JobTypes.Should().BeEquivalentTo("JobA", "JobB");
+        Assert.Equal(new[] { "JobA", "JobB" }, details.JobTypes.Order(StringComparer.Ordinal));
     }
 
     [Fact]
@@ -123,13 +122,13 @@ public abstract class StoreRunnerTestsBase<TFixture> : StoreTestBase<TFixture>
 
         var details = await Store.GetRunnerDetailsAsync(runnerId, CancellationToken.None);
 
-        details.Jobs.Should().BeEmpty();
+        Assert.Empty(details.Jobs);
     }
 
     [Fact]
     public async Task InitializeAsync_WhenCalledTwice_IsIdempotent()
     {
         var act = async () => await Store.InitializeAsync(CancellationToken.None);
-        await act.Should().NotThrowAsync();
+        Assert.Null(await Record.ExceptionAsync(act));
     }
 }

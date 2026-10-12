@@ -1,4 +1,3 @@
-using FluentAssertions;
 using Kododo.RunWay.Core.Jobs;
 using Kododo.RunWay.Core.Runners;
 using Kododo.RunWay.Core.Store;
@@ -67,8 +66,10 @@ public abstract class ConcurrencyTestsBase<TFixture> : StoreTestBase<TFixture>
         var remaining = await Store.GetCountAsync(
             new JobsFilter { Statuses = [JobStatus.Scheduled, JobStatus.Running] }, CancellationToken.None);
 
-        succeeded.Should().Be(jobCount, "each job should be processed exactly once");
-        remaining.Should().Be(0, "no job should remain unprocessed");
+        // each job should be processed exactly once
+        Assert.Equal(jobCount, succeeded);
+        // no job should remain unprocessed
+        Assert.Equal(0, remaining);
     }
 
     [Fact]
@@ -107,12 +108,14 @@ public abstract class ConcurrencyTestsBase<TFixture> : StoreTestBase<TFixture>
 
         var results = await Task.WhenAll(RaceAsync(runnerInfo1), RaceAsync(runnerInfo2));
 
-        results.Count(r => r).Should().Be(1, "exactly one runner should win the race");
-        results.Count(r => !r).Should().Be(1, "the other runner should get ConcurrencyException");
+        // exactly one runner should win the race
+        Assert.Equal(1, results.Count(r => r));
+        // the other runner should get ConcurrencyException
+        Assert.Equal(1, results.Count(r => !r));
 
         var count = await Store.GetCountAsync(
             new JobsFilter { Statuses = [JobStatus.Succeeded] }, CancellationToken.None);
-        count.Should().Be(1);
+        Assert.Equal(1, count);
     }
 
     [Fact]
@@ -164,7 +167,8 @@ public abstract class ConcurrencyTestsBase<TFixture> : StoreTestBase<TFixture>
         var succeeded = await Store.GetCountAsync(
             new JobsFilter { Statuses = [JobStatus.Succeeded] }, CancellationToken.None);
 
-        succeeded.Should().Be(jobCount, "the semaphore should prevent double-fetching of a job");
+        // the semaphore should prevent double-fetching of a job
+        Assert.Equal(jobCount, succeeded);
     }
 
     [Fact]
@@ -188,7 +192,7 @@ public abstract class ConcurrencyTestsBase<TFixture> : StoreTestBase<TFixture>
         var succeededCount = await Store.GetCountAsync(
             new JobsFilter { Statuses = [JobStatus.Succeeded] }, CancellationToken.None);
 
-        succeededCount.Should().Be(jobCount);
+        Assert.Equal(jobCount, succeededCount);
     }
 
     [Fact]
@@ -239,6 +243,7 @@ public abstract class ConcurrencyTestsBase<TFixture> : StoreTestBase<TFixture>
         var succeededCount = await Store.GetCountAsync(
             new JobsFilter { Statuses = [JobStatus.Succeeded] }, CancellationToken.None);
 
-        succeededCount.Should().Be(10, "each runner should process its 5 jobs");
+        // each runner should process its 5 jobs
+        Assert.Equal(10, succeededCount);
     }
 }

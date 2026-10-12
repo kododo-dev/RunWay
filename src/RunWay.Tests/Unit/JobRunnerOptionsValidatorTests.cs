@@ -1,4 +1,3 @@
-using FluentAssertions;
 using Kododo.RunWay.Runner;
 using Xunit;
 
@@ -13,7 +12,7 @@ public class JobRunnerOptionsValidatorTests
     {
         var options = new JobRunnerOptions { ThreadsCount = 0 };
         var result  = _validator.Validate(null, options);
-        result.Failed.Should().BeTrue();
+        Assert.True(result.Failed);
     }
 
     [Fact]
@@ -21,7 +20,7 @@ public class JobRunnerOptionsValidatorTests
     {
         var options = new JobRunnerOptions { ThreadsCount = -1 };
         var result  = _validator.Validate(null, options);
-        result.Failed.Should().BeTrue();
+        Assert.True(result.Failed);
     }
 
     [Fact]
@@ -29,7 +28,7 @@ public class JobRunnerOptionsValidatorTests
     {
         var options = new JobRunnerOptions { ThreadsCount = 4 };
         var result  = _validator.Validate(null, options);
-        result.Succeeded.Should().BeTrue();
+        Assert.True(result.Succeeded);
     }
 
     [Fact]
@@ -37,7 +36,7 @@ public class JobRunnerOptionsValidatorTests
     {
         var options = new JobRunnerOptions { ThreadsCount = 1 };
         var result  = _validator.Validate(null, options);
-        result.Succeeded.Should().BeTrue();
+        Assert.True(result.Succeeded);
     }
 
     [Fact]
@@ -45,6 +44,6 @@ public class JobRunnerOptionsValidatorTests
     {
         var options = new JobRunnerOptions { ThreadsCount = 0 };
         var result  = _validator.Validate(null, options);
-        result.FailureMessage.Should().Contain(nameof(JobRunnerOptions.ThreadsCount));
+        Assert.Contains(nameof(JobRunnerOptions.ThreadsCount), result.FailureMessage);
     }
 }
