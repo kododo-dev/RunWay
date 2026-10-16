@@ -4,6 +4,8 @@
     <TargetFrameworks />
     <TargetFramework>net10.0</TargetFramework>
     <IsPackable>false</IsPackable>
+    <!-- Base classes for the storage tests in RunWay.PostgreSQL.Tests and RunWay.SqlServer.Tests; nothing to run here. -->
+    <IsTestProject>false</IsTestProject>
   </PropertyGroup>
 
   <ItemGroup>
