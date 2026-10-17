@@ -55,7 +55,7 @@
 
     <PackageVersion Include="NCrontab" Version="3.4.0" />
     <PackageVersion Include="Kododo.Reiho.AspNetCore" Version="2.1.1" />
-    <PackageVersion Include="Kododo.Way.Shell" Version="2.0.0" />
+    <PackageVersion Include="Kododo.Way.Shell" Version="2.0.0-preview.1" />
   </ItemGroup>
 
   <ItemGroup>
