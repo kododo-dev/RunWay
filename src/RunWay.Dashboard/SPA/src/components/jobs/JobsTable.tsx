@@ -4,7 +4,7 @@ import type { GridColDef } from '@mui/x-data-grid';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { type JobListItem, type JobCategory } from '../../api/api.model';
-import { useNavigate } from 'react-router-dom';
+import { useWayNavigate } from '../../utils/useWayNavigate';
 import { useTheme } from '@mui/material/styles';
 import JobStatusBadge from './JobStatusBadge';
 
@@ -87,7 +87,7 @@ function getColumns(category: JobCategory, hideType: boolean): GridColDef[] {
 const JobsTable = ({ category, rows, rowCount, loading, paginationModel, setPaginationModel, hideType = false }: JobsTableProps) => {
   const theme = useTheme();
   const isDark = theme.palette.mode === 'dark';
-  const navigate = useNavigate();
+  const navigate = useWayNavigate();
   const [columns, setColumns] = useState<GridColDef[]>([]);
 
   useEffect(() => {

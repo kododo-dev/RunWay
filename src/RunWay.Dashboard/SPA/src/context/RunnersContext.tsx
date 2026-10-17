@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
-import { fetchRunners } from '../api/api';
+import { useApi } from '../api/api';
 import type {Runner} from '../api/api.model';
 
 interface RunnersContextValue {
@@ -16,13 +16,14 @@ const RunnersContext = createContext<RunnersContextValue>({
 });
 
 export const RunnersProvider = ({ children }: { children: ReactNode }) => {
+  const api = useApi();
   const [runners, setRunners] = useState<Runner[]>([]);
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     let mounted = true;
     const load = async () => {
-      const data = await fetchRunners();
+      const data = await api.fetchRunners();
       if (mounted) {
         setRunners(data);
         setLoaded(true);
@@ -34,7 +35,7 @@ export const RunnersProvider = ({ children }: { children: ReactNode }) => {
       mounted = false;
       clearInterval(interval);
     };
-  }, []);
+  }, [api]);
 
   return (
     <RunnersContext.Provider value={{ runners, onlineCount: runners.filter(x => x.status === 'Online').length, loaded }}>

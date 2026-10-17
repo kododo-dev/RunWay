@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
-import { fetchRecurrences } from '../api/api';
+import { useApi } from '../api/api';
 import type { Recurrence } from '../api/api.model';
 import RecurrencesTable from '../components/recurrences/RecurrencesTable';
 import PageHeader from '../components/layout/PageHeader';
 
 const RecurrencesPage = () => {
+    const api = useApi();
     const [rows, setRows] = useState<Recurrence[]>([]);
     const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 });
     const [rowCount, setRowCount] = useState<number>(0);
@@ -13,17 +14,17 @@ const RecurrencesPage = () => {
 
     useEffect(() => {
         setLoading(true);
-        fetchRecurrences(paginationModel.page + 1).then(data => {
+        api.fetchRecurrences(paginationModel.page + 1).then(data => {
             setRows(data.items || []);
             setRowCount(data.totalItems || 0);
             setLoading(false);
             setPaginationModel(prev => ({ ...prev, pageSize: data.pageSize }));
         });
-    }, [paginationModel.page]);
+    }, [api, paginationModel.page]);
 
     const handleRefresh = async () => {
         setLoading(true);
-        const data = await fetchRecurrences(paginationModel.page + 1);
+        const data = await api.fetchRecurrences(paginationModel.page + 1);
         setRows(data.items || []);
         setRowCount(data.totalItems || 0);
         setLoading(false);

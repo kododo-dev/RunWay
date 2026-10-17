@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import Box from '@mui/material/Box';
-import { fetchJobs } from '../api/api';
+import { useApi } from '../api/api';
 import { type JobCategory } from '../api/api.model';
 import type { JobListItem } from '../api/api.model';
 import JobsTable from '../components/jobs/JobsTable';
@@ -25,6 +25,7 @@ const categoryLabel: Record<string, string> = {
 
 const JobsPage = () => {
   const { category } = useParams<{ category?: string }>();
+  const api = useApi();
   const jobCategoryFromPath = category || null;
 
   const [rows, setRows] = useState<JobListItem[]>([]);
@@ -35,19 +36,19 @@ const JobsPage = () => {
   useEffect(() => {
     if (jobCategoryFromPath && pathToJobCategory[jobCategoryFromPath] !== undefined) {
       setLoading(true);
-      fetchJobs(pathToJobCategory[jobCategoryFromPath], paginationModel.page + 1).then(data => {
+      api.fetchJobs(pathToJobCategory[jobCategoryFromPath], paginationModel.page + 1).then(data => {
         setRows(data.items || []);
         setRowCount(data.totalItems || 0);
         setLoading(false);
         setPaginationModel(prev => ({ ...prev, pageSize: data.pageSize }));
       });
     }
-  }, [jobCategoryFromPath, paginationModel.page]);
+  }, [api, jobCategoryFromPath, paginationModel.page]);
 
   const handleRefresh = async () => {
     if (!jobCategoryFromPath || pathToJobCategory[jobCategoryFromPath] === undefined) return;
     setLoading(true);
-    const data = await fetchJobs(pathToJobCategory[jobCategoryFromPath], paginationModel.page + 1);
+    const data = await api.fetchJobs(pathToJobCategory[jobCategoryFromPath], paginationModel.page + 1);
     setRows(data.items || []);
     setRowCount(data.totalItems || 0);
     setLoading(false);
