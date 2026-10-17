@@ -223,12 +223,10 @@ internal sealed class Store(JobsDbContext db) : IStore
         }
         
         var count = await result.CountAsync(stoppingToken);
-        
-        if(query.Sorting != null && query.Sorting.Count > 0)
-        {
-            result = ApplySorting(result, query.Sorting);
-        }
-        
+
+        // Always ordered: pages of an unordered query can repeat or skip jobs.
+        result = ApplySorting(result, query.Sorting ?? []);
+
         result = result
             .Skip((query.Pagination.Page - 1) * query.Pagination.PageSize)
             .Take(query.Pagination.PageSize);
@@ -458,7 +456,8 @@ internal sealed class Store(JobsDbContext db) : IStore
             }
         }
 
-        return orderedResult ?? query;
+        // The id last, so jobs with equal values keep their order from page to page.
+        return orderedResult?.ThenBy(x => x.Id) ?? query.OrderBy(x => x.Id);
     }
 
     private static JobId ToJobId(long id)

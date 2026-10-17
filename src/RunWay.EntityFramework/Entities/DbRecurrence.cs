@@ -49,6 +49,5 @@ internal sealed class DbRecurrence
         set => this.SerializedOptions = JsonSerializer.Serialize(value);
     }
     
-    [ForeignKey(nameof(JobId))]
     public DbJob? Job { get; set; }
 }

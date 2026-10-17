@@ -60,6 +60,5 @@ internal sealed class DbJob
     [ForeignKey(nameof(RunnerId))]
     public DbRunner? Runner { get; set; }
     
-    [ForeignKey(nameof(ReccurenceId))]
     public DbRecurrence? Recurrence { get; set; }
 }
