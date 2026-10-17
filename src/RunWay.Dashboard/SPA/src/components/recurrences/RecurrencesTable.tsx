@@ -2,7 +2,7 @@ import { DataGrid } from '@mui/x-data-grid';
 import type { GridColDef } from '@mui/x-data-grid';
 import { type Recurrence } from '../../api/api.model';
 import { useTheme } from '@mui/material/styles';
-import { useNavigate } from 'react-router-dom';
+import { useWayNavigate } from '../../utils/useWayNavigate';
 
 interface RecurrencesTableProps {
     rows: Recurrence[];
@@ -44,7 +44,7 @@ const columns: GridColDef[] = [
 const RecurrencesTable = ({ rows, rowCount, loading, paginationModel, setPaginationModel }: RecurrencesTableProps) => {
     const theme = useTheme();
     const isDark = theme.palette.mode === 'dark';
-    const navigate = useNavigate();
+    const navigate = useWayNavigate();
 
     const borderColor = isDark ? '#2e2e2e' : '#e0e0e0';
     const headerBg    = isDark ? '#222'    : '#fafafa';

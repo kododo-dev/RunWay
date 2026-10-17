@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useWayNavigate } from '../utils/useWayNavigate';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { useTheme } from '@mui/material/styles';
@@ -26,7 +26,7 @@ interface RunnerCardProps {
 }
 
 const RunnerCard = ({ runner }: RunnerCardProps) => {
-  const navigate = useNavigate();
+  const navigate = useWayNavigate();
   const theme = useTheme();
   const isDark = theme.palette.mode === 'dark';
   const online = isOnline(runner.lastSeenAt);

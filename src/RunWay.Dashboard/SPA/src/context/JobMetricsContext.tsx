@@ -1,6 +1,6 @@
 ﻿import { createContext, useContext, useEffect, useState, useRef } from 'react';
 import type { ReactNode } from 'react';
-import { fetchJobMetrics } from '../api/api';
+import { useApi } from '../api/api';
 
 export interface JobCounts {
   running: number;
@@ -28,6 +28,7 @@ const JobMetricsContext = createContext<JobMetricsContextValue>({
 });
 
 export const JobMetricsProvider = ({ children }: { children: ReactNode }) => {
+  const api = useApi();
   const [jobCounts, setJobCounts] = useState<JobCounts>({
     running: 0,
     succeeded: 0,
@@ -41,7 +42,7 @@ export const JobMetricsProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     let mounted = true;
     const fetchMetrics = async () => {
-      const data = await fetchJobMetrics();
+      const data = await api.fetchJobMetrics();
       const now = Date.now();
       if (mounted) {
         setJobCounts(data);
@@ -66,7 +67,7 @@ export const JobMetricsProvider = ({ children }: { children: ReactNode }) => {
       mounted = false;
       clearInterval(interval);
     };
-  }, []);
+  }, [api]);
 
   return (
     <JobMetricsContext.Provider value={{ ...jobCounts, history }}>

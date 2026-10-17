@@ -22,6 +22,14 @@
       <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" />
     </ItemGroup>
 
+    <ItemGroup Condition="'$(UseLocalWayShell)' != 'true'">
+      <PackageReference Include="Kododo.Way.Shell" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(UseLocalWayShell)' == 'true'">
+      <ProjectReference Include="$(WayShellSource)\Way.Shell\Way.Shell.csproj" />
+    </ItemGroup>
+
   <Target Name="_PreserveFileProvidersEmbeddedPackageReference" AfterTargets="AddPrunePackageReferences">
     <ItemGroup>
       <PrunePackageReference Remove="Microsoft.Extensions.FileProviders.Embedded" />

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { fetchJobDetails, requeueJob } from '../api/api';
+import { useApi } from '../api/api';
 import type { JobDetails, JobAuditItem } from '../api/api.model';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -29,6 +29,7 @@ const REFRESH_INTERVAL = 5000;
 
 const JobPage = () => {
   const { id } = useParams<{ id: string }>();
+  const api = useApi();
   const theme = useTheme();
   const isDark = theme.palette.mode === 'dark';
 
@@ -44,11 +45,11 @@ const JobPage = () => {
 
   const fetchAndSetJob = useCallback(() => {
     if (!id) return;
-    fetchJobDetails(id)
+    api.fetchJobDetails(id)
       .then(data => { setJob(data); setError(null); })
       .catch(() => setError('Error while fetching job details.'))
       .finally(() => setLoading(false));
-  }, [id]);
+  }, [api, id]);
 
   useEffect(() => {
     setLoading(true);
@@ -62,7 +63,7 @@ const JobPage = () => {
     setRequeueing(true);
     setRequeueError(null);
     try {
-      await requeueJob(id);
+      await api.requeueJob(id);
       fetchAndSetJob();
     } catch {
       setRequeueError('Requeue failed. Please try again.');

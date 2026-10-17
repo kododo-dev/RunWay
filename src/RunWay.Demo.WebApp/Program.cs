@@ -76,7 +76,8 @@ app.MapPost("/jobs/fail", async (IScheduler runway) =>
     return Results.Ok();
 });
 
-app.UseRunWayDashboard();
+// The public demo: anyone may look at the jobs.
+app.UseRunWayDashboard().AllowAnonymous();
 
 await app.InitializeRunWayDatabaseAsync();
 

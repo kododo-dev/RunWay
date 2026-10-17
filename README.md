@@ -75,7 +75,7 @@ public class OrderService(IScheduler scheduler)
 ### 5. Mount the dashboard
 
 ```csharp
-app.UseRunWayDashboard();  // available at /scheduler
+app.UseRunWayDashboard().RequireAuthorization("Admin");  // available at /scheduler
 ```
 
 ---
@@ -177,6 +177,10 @@ app.UseRunWayDashboard("/jobs/dashboard");
 app.UseRunWayDashboard()
    .RequireAuthorization(policy => policy.RequireRole("Admin"));
 ```
+
+Outside the Development environment the dashboard and its API answer `403` until you decide who may use them: `RequireAuthorization(...)`, `AllowAnonymous()` for a public demo, or a fallback authorization policy. A dashboard nobody decided on is reported in the log at startup.
+
+The dashboard runs in [Way.Shell](https://github.com/kododo-dev/WayShell), the UI shell shared by the Kododo Way libraries: the layout, theme, language and session handling come from the shell, and with other Ways in the same app it can also be opened from the shell's panel (`app.UseWayShell("/admin")`). Configure the shell's title, links and user with `services.AddWayShell(o => ...)`.
 
 The dashboard shows job counts by status, a paginated job list, per-job audit timeline, recurring job schedules, and runner health.
 

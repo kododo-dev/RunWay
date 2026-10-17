@@ -29,12 +29,18 @@ app.UseRunWayDashboard("/jobs/dashboard");
 
 ## Authorization
 
-`UseRunWayDashboard()` returns a `RouteGroupBuilder`:
+`UseRunWayDashboard()` returns a `RouteGroupBuilder`. Outside the Development environment the dashboard answers `403` until you decide who may use it:
 
 ```csharp
 app.UseRunWayDashboard()
    .RequireAuthorization(policy => policy.RequireRole("Admin"));
+
+app.UseRunWayDashboard().AllowAnonymous();   // a public demo
 ```
+
+## Way.Shell
+
+The dashboard runs in [Kododo.Way.Shell](https://www.nuget.org/packages/Kododo.Way.Shell): the layout, theme, language and session handling come from the shell. Configure the title, links and user with `services.AddWayShell(o => ...)`, and add `app.UseWayShell("/admin")` for one panel with every Way in the app.
 
 ## Features
 

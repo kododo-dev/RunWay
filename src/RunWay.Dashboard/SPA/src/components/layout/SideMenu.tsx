@@ -1,4 +1,6 @@
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
+import { WayMenu } from '@kododo-dev/way-shell';
+import { useWayNavigate } from '../../utils/useWayNavigate';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
@@ -11,8 +13,8 @@ import Badge from '@mui/material/Badge';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
 import AutorenewIcon from '@mui/icons-material/Autorenew';
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
-import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutlined';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutlined';
 import RotateRightIcon from '@mui/icons-material/RotateRight';
 import DirectionsRunIcon from '@mui/icons-material/DirectionsRun';
 import RepeatIcon from '@mui/icons-material/Repeat';
@@ -30,16 +32,16 @@ const jobCategories = [
   { key: 'failed',    label: 'Failed',    icon: <ErrorOutlineIcon />,      color: CATEGORY_COLORS.failed },
 ];
 
-const SideMenu = ({ onNavigate }: { onNavigate?: () => void }) => {
-  const location = useLocation();
-  const navigate = useNavigate();
+// The dashboard's items in the shell's side menu; paths are from the dashboard's root.
+const SideMenu = () => {
+  const navigate = useWayNavigate();
   const theme = useTheme();
   const isDark = theme.palette.mode === 'dark';
   const { history: _history, ...jobCounts } = useJobMetrics();
   const { onlineCount: runnersCount } = useRunners();
   const { totalCount: recurrencesCount } = useRecurrences();
 
-  const path = location.pathname;
+  const path = '/' + (useParams()['*'] ?? '');
   const isDashboard = path === '/' || path === '/dashboard';
   const isRunners = path === '/runners';
   const isRecurrences = path === '/recurrences' || path.startsWith('/recurrences/');
@@ -72,97 +74,99 @@ const SideMenu = ({ onNavigate }: { onNavigate?: () => void }) => {
   };
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, overflow: 'hidden' }}>
-      <Box sx={{ flexShrink: 0, py: 1 }}>
-        <List dense disablePadding>
-          <ListItem disablePadding>
-            <ListItemButton selected={isDashboard} onClick={() => { navigate('/'); onNavigate?.(); }}>
-              <ListItemIcon sx={isDashboard ? activeIconSx : iconSx}><DashboardIcon /></ListItemIcon>
-              <ListItemText primary="Dashboard" sx={textSx(isDashboard)} />
-            </ListItemButton>
-          </ListItem>
-        </List>
-      </Box>
-
+    <WayMenu>
       <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, overflow: 'hidden' }}>
-        <Divider sx={{ borderColor, mx: 2, flexShrink: 0 }} />
-
-        <Typography sx={{
-          px: 2.5, pt: 1, pb: 0.5,
-          fontSize: '0.62rem',
-          color: isDark ? '#444' : '#bbb',
-          textTransform: 'uppercase',
-          letterSpacing: '0.1em',
-          fontFamily: 'monospace',
-          flexShrink: 0,
-        }}>
-          Jobs
-        </Typography>
-
-        <Box sx={{ flex: 1, minHeight: 0, overflowY: 'auto', pb: 1 }}>
+        <Box sx={{ flexShrink: 0, py: 1 }}>
           <List dense disablePadding>
-            {jobCategories.map(cat => {
-              const active = jobCategoryFromPath === cat.key;
-              const count = jobCounts[cat.key as keyof typeof jobCounts] ?? 0;
-              return (
-                <ListItem disablePadding key={cat.key}>
-                  <ListItemButton
-                    selected={active}
-                    onClick={() => { navigate(`/jobs/category/${cat.key}`); onNavigate?.(); }}
-                  >
-                    <ListItemIcon sx={active ? { ...activeIconSx, color: cat.color } : { ...iconSx, '& svg': { fontSize: 16 } }}>
-                      {cat.icon}
-                    </ListItemIcon>
-                    <ListItemText primary={cat.label} sx={textSx(active)} />
-                    {count > 0 && (
-                      <Badge
-                        badgeContent={count}
-                        sx={{
-                          mr: 1.5,
-                          '& .MuiBadge-badge': {
-                            backgroundColor: cat.color,
-                            color: '#fff',
-                            fontSize: '0.6rem',
-                            minWidth: 16,
-                            height: 16,
-                            fontFamily: "'IBM Plex Mono', monospace",
-                          },
-                        }}
-                      />
-                    )}
-                  </ListItemButton>
-                </ListItem>
-              );
-            })}
-
-
-            <Divider sx={{ borderColor, mx: 2, my: 0.5 }} />
-
             <ListItem disablePadding>
-              <ListItemButton selected={isRecurrences} onClick={() => { navigate('/recurrences'); onNavigate?.(); }}>
-                <ListItemIcon sx={isRecurrences ? activeIconSx : iconSx}><RepeatIcon /></ListItemIcon>
-                <ListItemText primary="Recurrences" sx={textSx(isRecurrences)} />
-                {recurrencesCount > 0 && (
-                  <Badge badgeContent={recurrencesCount} sx={neutralBadgeSx} />
-                )}
-              </ListItemButton>
-            </ListItem>
-
-            <Divider sx={{ borderColor, mx: 2, my: 0.5 }} />
-
-            <ListItem disablePadding>
-              <ListItemButton selected={isRunners} onClick={() => { navigate('/runners'); onNavigate?.(); }}>
-                <ListItemIcon sx={isRunners ? activeIconSx : iconSx}><DirectionsRunIcon /></ListItemIcon>
-                <ListItemText primary="Runners" sx={textSx(isRunners)} />
-                {runnersCount > 0 && (
-                  <Badge badgeContent={runnersCount} sx={neutralBadgeSx} />
-                )}
+              <ListItemButton selected={isDashboard} onClick={() => navigate('/')}>
+                <ListItemIcon sx={isDashboard ? activeIconSx : iconSx}><DashboardIcon /></ListItemIcon>
+                <ListItemText primary="Dashboard" sx={textSx(isDashboard)} />
               </ListItemButton>
             </ListItem>
           </List>
         </Box>
+
+        <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, overflow: 'hidden' }}>
+          <Divider sx={{ borderColor, mx: 2, flexShrink: 0 }} />
+
+          <Typography sx={{
+            px: 2.5, pt: 1, pb: 0.5,
+            fontSize: '0.62rem',
+            color: isDark ? '#444' : '#bbb',
+            textTransform: 'uppercase',
+            letterSpacing: '0.1em',
+            fontFamily: 'monospace',
+            flexShrink: 0,
+          }}>
+            Jobs
+          </Typography>
+
+          <Box sx={{ flex: 1, minHeight: 0, overflowY: 'auto', pb: 1 }}>
+            <List dense disablePadding>
+              {jobCategories.map(cat => {
+                const active = jobCategoryFromPath === cat.key;
+                const count = jobCounts[cat.key as keyof typeof jobCounts] ?? 0;
+                return (
+                  <ListItem disablePadding key={cat.key}>
+                    <ListItemButton
+                      selected={active}
+                      onClick={() => navigate(`/jobs/category/${cat.key}`)}
+                    >
+                      <ListItemIcon sx={active ? { ...activeIconSx, color: cat.color } : { ...iconSx, '& svg': { fontSize: 16 } }}>
+                        {cat.icon}
+                      </ListItemIcon>
+                      <ListItemText primary={cat.label} sx={textSx(active)} />
+                      {count > 0 && (
+                        <Badge
+                          badgeContent={count}
+                          sx={{
+                            mr: 1.5,
+                            '& .MuiBadge-badge': {
+                              backgroundColor: cat.color,
+                              color: '#fff',
+                              fontSize: '0.6rem',
+                              minWidth: 16,
+                              height: 16,
+                              fontFamily: "'IBM Plex Mono', monospace",
+                            },
+                          }}
+                        />
+                      )}
+                    </ListItemButton>
+                  </ListItem>
+                );
+              })}
+
+
+              <Divider sx={{ borderColor, mx: 2, my: 0.5 }} />
+
+              <ListItem disablePadding>
+                <ListItemButton selected={isRecurrences} onClick={() => navigate('/recurrences')}>
+                  <ListItemIcon sx={isRecurrences ? activeIconSx : iconSx}><RepeatIcon /></ListItemIcon>
+                  <ListItemText primary="Recurrences" sx={textSx(isRecurrences)} />
+                  {recurrencesCount > 0 && (
+                    <Badge badgeContent={recurrencesCount} sx={neutralBadgeSx} />
+                  )}
+                </ListItemButton>
+              </ListItem>
+
+              <Divider sx={{ borderColor, mx: 2, my: 0.5 }} />
+
+              <ListItem disablePadding>
+                <ListItemButton selected={isRunners} onClick={() => navigate('/runners')}>
+                  <ListItemIcon sx={isRunners ? activeIconSx : iconSx}><DirectionsRunIcon /></ListItemIcon>
+                  <ListItemText primary="Runners" sx={textSx(isRunners)} />
+                  {runnersCount > 0 && (
+                    <Badge badgeContent={runnersCount} sx={neutralBadgeSx} />
+                  )}
+                </ListItemButton>
+              </ListItem>
+            </List>
+          </Box>
+        </Box>
       </Box>
-    </Box>
+    </WayMenu>
   );
 };
 

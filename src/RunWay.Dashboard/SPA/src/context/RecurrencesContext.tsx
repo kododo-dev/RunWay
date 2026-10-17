@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
-import { fetchRecurrences } from '../api/api';
+import { useApi } from '../api/api';
 
 interface RecurrencesContextValue {
     totalCount: number;
@@ -11,13 +11,14 @@ const RecurrencesContext = createContext<RecurrencesContextValue>({
 });
 
 export const RecurrencesProvider = ({ children }: { children: ReactNode }) => {
+    const api = useApi();
     const [totalCount, setTotalCount] = useState(0);
 
     useEffect(() => {
         let mounted = true;
         const load = async () => {
             try {
-                const data = await fetchRecurrences(1);
+                const data = await api.fetchRecurrences(1);
                 if (mounted) setTotalCount(data.totalItems || 0);
             } catch {}
         };
@@ -27,7 +28,7 @@ export const RecurrencesProvider = ({ children }: { children: ReactNode }) => {
             mounted = false;
             clearInterval(interval);
         };
-    }, []);
+    }, [api]);
 
     return (
         <RecurrencesContext.Provider value={{ totalCount }}>

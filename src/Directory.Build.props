@@ -11,6 +11,15 @@
     <DebugType>none</DebugType>
   </PropertyGroup>
 
+  <!--
+    Until Kododo.Way.Shell 2.0.0 is on NuGet, RunWay.Dashboard builds against the WayShell sources checked out next to
+    this repository (../WayShell); -p:UseLocalWayShell=false uses the package.
+  -->
+  <PropertyGroup>
+    <UseLocalWayShell Condition="'$(UseLocalWayShell)' == ''">true</UseLocalWayShell>
+    <WayShellSource Condition="'$(WayShellSource)' == ''">$(MSBuildThisFileDirectory)..\..\WayShell\src</WayShellSource>
+  </PropertyGroup>
+
   <PropertyGroup>
     <AssemblyName>Kododo.$(MSBuildProjectName)</AssemblyName>
     <RootNamespace>Kododo.$(MSBuildProjectName)</RootNamespace>

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { fetchRecurrence, fetchRecurrenceJobs } from '../api/api';
+import { useApi } from '../api/api';
 import type { Recurrence, JobListItem } from '../api/api.model';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -15,6 +15,7 @@ const MONO = { fontFamily: "'IBM Plex Mono', monospace" };
 
 const RecurrencePage = () => {
     const { id } = useParams<{ id: string }>();
+    const api = useApi();
     const theme = useTheme();
     const isDark = theme.palette.mode === 'dark';
 
@@ -33,22 +34,22 @@ const RecurrencePage = () => {
 
     const fetchAndSetRecurrence = useCallback(() => {
         if (!id) return;
-        fetchRecurrence(id)
+        api.fetchRecurrence(id)
             .then(data => { setRecurrence(data); setError(null); })
             .catch(() => setError('Error while fetching recurrence details.'))
             .finally(() => setLoading(false));
-    }, [id]);
+    }, [api, id]);
 
     const fetchJobs = useCallback((page: number) => {
         if (!id) return;
         setJobsLoading(true);
-        fetchRecurrenceJobs(id, page).then(data => {
+        api.fetchRecurrenceJobs(id, page).then(data => {
             setJobRows(data.items || []);
             setJobRowCount(data.totalItems || 0);
             setJobPaginationModel(prev => ({ ...prev, pageSize: data.pageSize }));
             setJobsLoading(false);
         });
-    }, [id]);
+    }, [api, id]);
 
     useEffect(() => {
         setLoading(true);

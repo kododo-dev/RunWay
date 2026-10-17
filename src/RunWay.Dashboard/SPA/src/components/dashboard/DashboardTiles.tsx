@@ -1,7 +1,7 @@
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { useTheme } from '@mui/material/styles';
-import { useNavigate } from 'react-router-dom';
+import { useWayNavigate } from '../../utils/useWayNavigate';
 import { CATEGORY_COLORS } from '../../utils/jobUtils';
 
 interface DashboardTilesProps {
@@ -27,7 +27,7 @@ const MONO = { fontFamily: "'IBM Plex Mono', monospace" };
 const DashboardTiles = ({ jobCounts }: DashboardTilesProps) => {
   const theme = useTheme();
   const isDark = theme.palette.mode === 'dark';
-  const navigate = useNavigate();
+  const navigate = useWayNavigate();
 
   const cardBg     = isDark ? '#222' : '#fff';
   const borderBase = isDark ? '#2e2e2e' : '#e0e0e0';

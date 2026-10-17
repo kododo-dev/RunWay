@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
+import { useWayNavigate } from '../utils/useWayNavigate';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Chip from '@mui/material/Chip';
@@ -8,7 +9,7 @@ import Tooltip from '@mui/material/Tooltip';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import { useTheme } from '@mui/material/styles';
 import type {RunnerDetails} from "../api/api.model.ts";
-import {fetchRunner} from "../api/api.ts";
+import { useApi } from '../api/api';
 
 const MONO = { fontFamily: "'IBM Plex Mono', monospace" };
 
@@ -32,7 +33,8 @@ function formatDate(dateStr: string): string {
 
 const RunnerPage = () => {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
+  const navigate = useWayNavigate();
+  const api = useApi();
   const theme = useTheme();
   const isDark = theme.palette.mode === 'dark';
 
@@ -55,7 +57,7 @@ const RunnerPage = () => {
     if (showLoading) setRunnerLoading(true);
     setRunnerError(false);
     try {
-      const data = await fetchRunner(id);
+      const data = await api.fetchRunner(id);
       setRunner(data);
     } catch {
       setRunnerError(true);
