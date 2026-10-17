@@ -11,13 +11,40 @@
     <AspNetCoreTestVersion Condition="'$(TargetFramework)' == 'net9.0'">9.0.20</AspNetCoreTestVersion>
   </PropertyGroup>
 
+  <!--
+    EF Core follows the target framework: EF Core 10 is not binary compatible with code built against 8 (ExecuteUpdate's
+    SetPropertyCalls is gone), so an app on EF Core 10 needs RunWay built against 10.
+  -->
+  <PropertyGroup>
+    <EfCoreVersion>10.0.13</EfCoreVersion>
+    <NpgsqlEfCoreVersion>10.0.3</NpgsqlEfCoreVersion>
+    <NpgsqlVersion>10.0.3</NpgsqlVersion>
+    <EfCoreVersion Condition="'$(TargetFramework)' == 'net8.0'">8.0.29</EfCoreVersion>
+    <NpgsqlEfCoreVersion Condition="'$(TargetFramework)' == 'net8.0'">8.0.11</NpgsqlEfCoreVersion>
+    <NpgsqlVersion Condition="'$(TargetFramework)' == 'net8.0'">8.0.9</NpgsqlVersion>
+    <EfCoreVersion Condition="'$(TargetFramework)' == 'net9.0'">9.0.21</EfCoreVersion>
+    <NpgsqlEfCoreVersion Condition="'$(TargetFramework)' == 'net9.0'">9.0.4</NpgsqlEfCoreVersion>
+    <NpgsqlVersion Condition="'$(TargetFramework)' == 'net9.0'">9.0.5</NpgsqlVersion>
+  </PropertyGroup>
+
+  <!--
+    Microsoft.Data.SqlClient (through EF Core SqlServer) depends on System.Security.Cryptography.Pkcs versions with known
+    vulnerabilities, so RunWay.SqlServer references the patched ones directly, as ConfigWay does.
+  -->
+  <PropertyGroup>
+    <PkcsVersion>10.0.13</PkcsVersion>
+    <PkcsVersion Condition="'$(TargetFramework)' == 'net8.0'">8.0.2</PkcsVersion>
+    <PkcsVersion Condition="'$(TargetFramework)' == 'net9.0'">9.0.21</PkcsVersion>
+  </PropertyGroup>
+
   <ItemGroup>
-    <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="8.0.29" />
-    <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.29" />
-    <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.29" />
-    <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.11" />
-    <PackageVersion Include="Npgsql" Version="8.0.9" />
-    <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.29" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="$(EfCoreVersion)" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="$(EfCoreVersion)" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="$(EfCoreVersion)" />
+    <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="$(NpgsqlEfCoreVersion)" />
+    <PackageVersion Include="Npgsql" Version="$(NpgsqlVersion)" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="$(EfCoreVersion)" />
+    <PackageVersion Include="System.Security.Cryptography.Pkcs" Version="$(PkcsVersion)" />
 
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.2" />
