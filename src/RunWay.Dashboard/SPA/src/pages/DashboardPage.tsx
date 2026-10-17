@@ -1,8 +1,11 @@
+import { Suspense, lazy } from 'react';
 import Box from '@mui/material/Box';
 import PageHeader from '../components/layout/PageHeader';
 import DashboardTiles from '../components/dashboard/DashboardTiles';
-import ChartJobsHistory from '../components/dashboard/ChartJobsHistory';
 import { useJobMetrics } from '../context/JobMetricsContext';
+
+// recharts is most of the dashboard's code; the tiles show while it loads.
+const ChartJobsHistory = lazy(() => import('../components/dashboard/ChartJobsHistory'));
 
 const DashboardPage = () => {
   const { history, ...jobCounts } = useJobMetrics();
@@ -12,7 +15,9 @@ const DashboardPage = () => {
       <PageHeader title="Dashboard" />
       <Box sx={{ flex: 1, overflowY: 'auto' }}>
         <DashboardTiles jobCounts={jobCounts} />
-        <ChartJobsHistory history={history} />
+        <Suspense>
+          <ChartJobsHistory history={history} />
+        </Suspense>
       </Box>
     </Box>
   );
