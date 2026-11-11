@@ -5,6 +5,12 @@ namespace Kododo.RunWay.Schedule;
 
 public interface IScheduleJobBuilder<T> : IJobBuilder<T>
 {
+    // The settings return the schedule builder, so a chain can end with ScheduleAsync.
+    new IScheduleJobBuilder<T> AsTransactional(bool transactional);
+    new IScheduleJobBuilder<T> WithPriority(int priority);
+    new IScheduleJobBuilder<T> WithRetryDelaysInSeconds(params int[] retryDelaysInSeconds);
+    new IScheduleJobBuilder<T> WithTimeout(TimeSpan timeout);
+
     Task<JobId> ScheduleAsync(DateTimeOffset scheduledAt, CancellationToken stoppingToken);
     Task<JobId> ScheduleAsync(CancellationToken stoppingToken);
 }
@@ -21,6 +27,18 @@ internal sealed class ScheduleJobBuilder<T> : JobBuilder<T>, IScheduleJobBuilder
         _store = store;
         _options = options;
     }
+
+    public new IScheduleJobBuilder<T> AsTransactional(bool transactional) { base.AsTransactional(transactional); return this; }
+
+    public new IScheduleJobBuilder<T> WithPriority(int priority) { base.WithPriority(priority); return this; }
+
+    public new IScheduleJobBuilder<T> WithRetryDelaysInSeconds(params int[] retryDelaysInSeconds)
+    {
+        base.WithRetryDelaysInSeconds(retryDelaysInSeconds);
+        return this;
+    }
+
+    public new IScheduleJobBuilder<T> WithTimeout(TimeSpan timeout) { base.WithTimeout(timeout); return this; }
 
     public async Task<JobId> ScheduleAsync(DateTimeOffset scheduledAt, CancellationToken stoppingToken)
     {

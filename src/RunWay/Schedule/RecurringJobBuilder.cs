@@ -5,6 +5,12 @@ namespace Kododo.RunWay.Schedule;
 
 public interface IRecurringJobBuilder<T> : IJobBuilder<T>
 {
+    // The settings return the recurring builder, so a chain can end with SetRecurrenceAsync.
+    new IRecurringJobBuilder<T> AsTransactional(bool transactional);
+    new IRecurringJobBuilder<T> WithPriority(int priority);
+    new IRecurringJobBuilder<T> WithRetryDelaysInSeconds(params int[] retryDelaysInSeconds);
+    new IRecurringJobBuilder<T> WithTimeout(TimeSpan timeout);
+
     Task SetRecurrenceAsync(string key, string cronExpression, CancellationToken stoppingToken);
 }
 
@@ -22,6 +28,18 @@ internal sealed class RecurringJobBuilder<T> : JobBuilder<T>, IRecurringJobBuild
         _recurrenceCalculator = recurrenceCalculator;
         _options = options;
     }
+
+    public new IRecurringJobBuilder<T> AsTransactional(bool transactional) { base.AsTransactional(transactional); return this; }
+
+    public new IRecurringJobBuilder<T> WithPriority(int priority) { base.WithPriority(priority); return this; }
+
+    public new IRecurringJobBuilder<T> WithRetryDelaysInSeconds(params int[] retryDelaysInSeconds)
+    {
+        base.WithRetryDelaysInSeconds(retryDelaysInSeconds);
+        return this;
+    }
+
+    public new IRecurringJobBuilder<T> WithTimeout(TimeSpan timeout) { base.WithTimeout(timeout); return this; }
 
     public async Task SetRecurrenceAsync(string key, string cronExpression, CancellationToken stoppingToken)
     {
