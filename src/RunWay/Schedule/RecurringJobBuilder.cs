@@ -85,14 +85,36 @@ internal sealed class RecurringJobBuilder<T> : JobBuilder<T>, IRecurringJobBuild
     private async Task UpdateAsync(Recurrence recurrence, Recurrence existingRecurrence, CancellationToken stoppingToken)
     {
         var cronChanged = !existingRecurrence.Rule.Equals(recurrence.Rule);
-        if (cronChanged)
+        existingRecurrence.Update(recurrence.Rule, recurrence.Data, recurrence.Options);
+        var currentJob = existingRecurrence.CurrentJob;
+
+        if (currentJob is { IsWaiting: true })
+        {
+            // The waiting job takes the new data and options; with a new expression it also moves to the new time.
+            // No second job is created, so nothing runs twice or with the old settings.
+            var scheduledAt = cronChanged
+                ? _recurrenceCalculator.CalculateNextOccurrence(recurrence.Rule, DateTimeOffset.UtcNow)
+                : currentJob.ScheduledAt;
+            currentJob.Reconfigure(recurrence.Data, recurrence.Options, scheduledAt);
+            try
+            {
+                await _store.UpdateWithoutTransactionAsync(currentJob, stoppingToken);
+            }
+            catch (Exception ex) when (_store.IsConcurrencyException(ex))
+            {
+                // A runner started the job in the meantime. It runs with the old settings; the next one is created
+                // from the updated recurrence when it completes.
+            }
+        }
+        else if (currentJob is null || currentJob.Status.IsCompleted())
         {
             var nextOccurrence = _recurrenceCalculator.CalculateNextOccurrence(recurrence.Rule, DateTimeOffset.UtcNow);
-            var job = Job.CreateNew(recurrence, nextOccurrence);
-            job = await _store.CreateWithoutTransactionAsync(job, stoppingToken);
-            existingRecurrence.Update(recurrence.Rule, recurrence.Data, recurrence.Options, job);
-            await _store.UpdateRecurrenceWithoutTransactionAsync(existingRecurrence, stoppingToken);
+            var job = await _store.CreateWithoutTransactionAsync(Job.CreateNew(existingRecurrence, nextOccurrence), stoppingToken);
+            existingRecurrence.AssignJob(job);
         }
+        // A running job keeps its settings; the next one is created from the updated recurrence when it completes.
+
+        await _store.UpdateRecurrenceWithoutTransactionAsync(existingRecurrence, stoppingToken);
     }
 
     private async Task CreateAsync(Recurrence recurrence, CancellationToken stoppingToken)

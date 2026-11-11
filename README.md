@@ -114,7 +114,7 @@ await app.SetRecurrenceAsync("nightly-cleanup", "0 2 * * *", new CleanupJob(), o
 });
 ```
 
-- Safe to call on every startup — only updates if the expression or data changed
+- Safe to call on every startup — only updates if the expression, data or options changed; a job already waiting for the next occurrence takes the change, a running one keeps its settings and the next one uses the new ones
 - Each recurrence is identified by a unique string key
 
 ---

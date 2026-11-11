@@ -1,4 +1,4 @@
-using Kododo.RunWay.Core.Jobs;
+﻿using Kododo.RunWay.Core.Jobs;
 using Kododo.RunWay.Core.Jobs.Audit;
 using Kododo.RunWay.Core.Runners;
 using Kododo.RunWay.Core.Store;
@@ -90,6 +90,22 @@ public abstract class StoreJobTestsBase<TFixture> : StoreTestBase<TFixture>
 
         var details = await Store.GetDetailsAsync(job.Id, CancellationToken.None);
         Assert.Contains(details.Audit, a => a.Type == JobAuditRecordType.Started);
+    }
+
+    [Fact]
+    public async Task UpdateAsync_Reconfigured_PersistsDataOptionsAndTime()
+    {
+        var job = await Store.CreateAsync(NewJob(), CancellationToken.None);
+        var at = new DateTimeOffset(2030, 1, 1, 5, 0, 0, TimeSpan.Zero);
+
+        job.Reconfigure(new JobData("NewType", "{\"kind\":\"weekly\"}"), new JobOptions(5, [30, 90], TimeSpan.FromMinutes(2)), at);
+        await Store.UpdateAsync(job, CancellationToken.None);
+
+        var updated = (await Store.FindAsync(job.Id, CancellationToken.None))!;
+        Assert.Equal(new JobData("NewType", "{\"kind\":\"weekly\"}"), updated.Data);
+        Assert.Equal(new JobOptions(5, [30, 90], TimeSpan.FromMinutes(2)), updated.Options);
+        Assert.Equal(at, updated.ScheduledAt);
+        Assert.Equal(JobStatus.Scheduled, updated.Status);
     }
 
     [Fact]

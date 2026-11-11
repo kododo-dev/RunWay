@@ -1,4 +1,4 @@
-using Kododo.RunWay.Core.Jobs;
+﻿using Kododo.RunWay.Core.Jobs;
 using Kododo.RunWay.Core.Recurrences;
 using Kododo.RunWay.Core.Store;
 using Kododo.RunWay.Schedule;
@@ -91,11 +91,14 @@ public class RecurringJobBuilderTests
     }
 
     [Fact]
-    public async Task SetRecurrenceAsync_ExistingRecurrenceWithSameRule_DoesNotUpdate()
+    public async Task SetRecurrenceAsync_ExistingRecurrenceUnchanged_DoesNotUpdate()
     {
         const string expression = "0 * * * *";
-        var existingData = _options.JobDataSerializer.Serialize(new { });
-        var existingOptions = new JobOptions(0, [], TimeSpan.FromMinutes(1));
+        // Serialized as the builder does it: RecurringJobBuilder<object> stores the type as System.Object.
+        var existingData = _options.JobDataSerializer.Serialize<object>(new { });
+        // The options the builder produces by default, as a separate list instance, like when read back from the store.
+        var defaults = new JobOptionsBuilder(_options.SchedulerOptions);
+        var existingOptions = new JobOptions(defaults.Priority, defaults.RetryDelaysInSeconds.ToArray(), defaults.Timeout);
         var existing = Recurrence.CreateNew(new RecurrenceId("test-key"), expression, existingData, existingOptions);
 
         _store.FindRecurrenceAsync(Arg.Any<RecurrenceId>(), Arg.Any<CancellationToken>())
@@ -108,6 +111,27 @@ public class RecurringJobBuilderTests
         await builder.SetRecurrenceAsync("test-key", expression, CancellationToken.None);
 
         await _store.DidNotReceive().UpdateRecurrenceWithoutTransactionAsync(Arg.Any<Recurrence>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task SetRecurrenceAsync_ExistingRecurrenceWithSameRuleButOtherOptions_Updates()
+    {
+        const string expression = "0 * * * *";
+        var existing = Recurrence.CreateNew(new RecurrenceId("test-key"), expression,
+            _options.JobDataSerializer.Serialize(new { }), new JobOptions(0, [], TimeSpan.FromMinutes(1)));
+        _store.FindRecurrenceAsync(Arg.Any<RecurrenceId>(), Arg.Any<CancellationToken>()).Returns(existing);
+        _store.UpdateRecurrenceWithoutTransactionAsync(Arg.Any<Recurrence>(), Arg.Any<CancellationToken>())
+            .Returns(callInfo => callInfo.Arg<Recurrence>()!);
+        _store.CreateWithoutTransactionAsync(Arg.Any<Job>(), Arg.Any<CancellationToken>())
+            .Returns(callInfo => callInfo.Arg<Job>()!);
+        _calculator.CalculateNextOccurrence(Arg.Any<string>(), Arg.Any<DateTimeOffset>()).Returns(_nextOccurrence);
+
+        var builder = new RecurringJobBuilder<object>(new { }, _store, _calculator, _options);
+
+        await builder.SetRecurrenceAsync("test-key", expression, CancellationToken.None);
+
+        await _store.Received(1).UpdateRecurrenceWithoutTransactionAsync(
+            Arg.Is<Recurrence>(r => r != null && r.Options.Timeout == _options.SchedulerOptions.Timeout), Arg.Any<CancellationToken>());
     }
 
     [Fact]

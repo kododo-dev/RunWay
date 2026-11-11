@@ -25,9 +25,9 @@ public sealed class Job(JobId id, int version, JobData data, JobOptions options,
     
     public int Version { get; } = version;
 
-    public JobData Data { get; } = data;
+    public JobData Data { get; private set; } = data;
 
-    public  JobOptions Options { get; } = options;
+    public  JobOptions Options { get; private set; } = options;
 
     public JobStatus Status { get; private set; } = status;
     
@@ -42,6 +42,25 @@ public sealed class Job(JobId id, int version, JobData data, JobOptions options,
     public RecurrenceId? RecurrenceId { get; private set; } = recurrenceId;
     
     public IEnumerable<JobAuditRecord> PendingEvents => _pendingEvents;
+
+    /// <summary>
+    /// Changes the data, options and time of a job that is still waiting, e.g. when its recurrence changes.
+    /// </summary>
+    public void Reconfigure(JobData data, JobOptions options, DateTimeOffset scheduledAt)
+    {
+        if (this.RunnerId != null || this.Status != JobStatus.Scheduled)
+            throw new InvalidOperationException("Only scheduled jobs that are not being processed by any runner can be reconfigured.");
+
+        this.Data = data;
+        this.Options = options;
+        if (scheduledAt != this.ScheduledAt)
+        {
+            this.ScheduledAt = scheduledAt;
+            this._pendingEvents.Add(new JobAuditRecord(DateTimeOffset.UtcNow, JobAuditRecordType.Scheduled, scheduledAt.UtcDateTime.ToString("O")));
+        }
+    }
+
+    public bool IsWaiting => this.Status == JobStatus.Scheduled && this.RunnerId == null;
 
     public void Started(RunnerInfo runnerInfo)
     {
