@@ -165,6 +165,10 @@ internal sealed class Store(JobsDbContext db) : IStore
         dbJob.ScheduledAt = job.ScheduledAt.UtcDateTime;
         dbJob.RetriesCount = job.RetriesCount;
         dbJob.RunnerId = job.RunnerId != null ? ParseId(job.RunnerId.Value) : null;
+        dbJob.Type = job.Data.Type;
+        dbJob.Data = job.Data.Data;
+        dbJob.Priority = job.Options.Priority;
+        dbJob.Options = new DbJobOptions(job.Options.RetryDelaysInSeconds.ToArray(), job.Options.Timeout);
 
         foreach (var auditRecord in job.PendingEvents)
         {

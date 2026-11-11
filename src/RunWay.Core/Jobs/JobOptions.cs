@@ -14,11 +14,16 @@ public sealed record JobOptions(
     {
         if (other is null) return false;
         if (ReferenceEquals(this, other)) return true;
-        return Priority == other.Priority && RetryDelaysInSeconds.Equals(other.RetryDelaysInSeconds) && Timeout.Equals(other.Timeout);
+        // The delays are compared by value: options read from the store are a different list instance.
+        return Priority == other.Priority && RetryDelaysInSeconds.SequenceEqual(other.RetryDelaysInSeconds) && Timeout.Equals(other.Timeout);
     }
 
     public override int GetHashCode()
     {
-        return HashCode.Combine(Priority, RetryDelaysInSeconds, Timeout);
+        var hash = new HashCode();
+        hash.Add(Priority);
+        hash.Add(Timeout);
+        foreach (var delay in RetryDelaysInSeconds) hash.Add(delay);
+        return hash.ToHashCode();
     }
 }

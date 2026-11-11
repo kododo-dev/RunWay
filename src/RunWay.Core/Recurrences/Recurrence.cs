@@ -29,6 +29,13 @@ public class Recurrence(RecurrenceId id, int version, string rule, JobData data,
         this.CurrentJob = currentJob;
     }
 
+    public void Update(string rule, JobData data, JobOptions options)
+    {
+        this.Rule = rule;
+        this.Data = data;
+        this.Options = options;
+    }
+
     public void AssignJob(Job job)
     {
         if (this.CurrentJob?.Status.IsCompleted() == false)
