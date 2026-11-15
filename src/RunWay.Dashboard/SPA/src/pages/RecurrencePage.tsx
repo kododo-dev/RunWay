@@ -10,6 +10,7 @@ import Divider from '@mui/material/Divider';
 import { useTheme } from '@mui/material/styles';
 import PageHeader from '../components/layout/PageHeader';
 import JobsTable from '../components/jobs/JobsTable';
+import { useI18n } from '../i18n/i18n';
 
 const MONO = { fontFamily: "'IBM Plex Mono', monospace" };
 
@@ -17,6 +18,7 @@ const RecurrencePage = () => {
     const { id } = useParams<{ id: string }>();
     const api = useApi();
     const theme = useTheme();
+    const { t } = useI18n();
     const isDark = theme.palette.mode === 'dark';
 
     const [recurrence, setRecurrence] = useState<Recurrence | null>(null);
@@ -36,9 +38,9 @@ const RecurrencePage = () => {
         if (!id) return;
         api.fetchRecurrence(id)
             .then(data => { setRecurrence(data); setError(null); })
-            .catch(() => setError('Error while fetching recurrence details.'))
+            .catch(() => setError(t.recurrenceFetchError))
             .finally(() => setLoading(false));
-    }, [api, id]);
+    }, [api, id, t]);
 
     const fetchJobs = useCallback((page: number) => {
         if (!id) return;
@@ -72,7 +74,7 @@ const RecurrencePage = () => {
             </Box>
         );
         if (error) return <Alert severity="error" sx={{ m: 3, ...MONO, fontSize: '0.78rem' }}>{error}</Alert>;
-        if (!recurrence) return <Alert severity="warning" sx={{ m: 3, ...MONO, fontSize: '0.78rem' }}>Recurrence not found.</Alert>;
+        if (!recurrence) return <Alert severity="warning" sx={{ m: 3, ...MONO, fontSize: '0.78rem' }}>{t.recurrenceNotFound}</Alert>;
 
         let parsedData: unknown;
         try { parsedData = recurrence.data ? JSON.parse(recurrence.data) : null; }
@@ -97,7 +99,7 @@ const RecurrencePage = () => {
                     <Divider sx={{ borderColor, my: 1.5 }} />
                     <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
                         <Box>
-                            <Typography sx={{ ...MONO, fontSize: '0.62rem', color: theme.palette.text.secondary, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Cron</Typography>
+                            <Typography sx={{ ...MONO, fontSize: '0.62rem', color: theme.palette.text.secondary, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{t.cron}</Typography>
                             <Typography sx={{ ...MONO, fontSize: '0.85rem', color: theme.palette.text.primary }}>{recurrence.rule}</Typography>
                         </Box>
                     </Box>
@@ -105,7 +107,7 @@ const RecurrencePage = () => {
 
                 <Box>
                     <Typography sx={{ ...MONO, fontSize: '0.72rem', color: theme.palette.text.secondary, textTransform: 'uppercase', letterSpacing: '0.08em', mb: 1 }}>
-                        Payload
+                        {t.payload}
                     </Typography>
                     <Box sx={{
                         background: sectionBg,
@@ -130,7 +132,7 @@ const RecurrencePage = () => {
 
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, minHeight: 400 }}>
                     <Typography sx={{ ...MONO, fontSize: '0.72rem', color: theme.palette.text.secondary, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-                        Jobs
+                        {t.jobs}
                     </Typography>
                     <Box sx={{ flex: 1, minHeight: 400 }}>
                         <JobsTable
@@ -150,7 +152,7 @@ const RecurrencePage = () => {
 
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
-            <PageHeader title={`Recurrence #${id}`} onRefresh={handleRefresh} />
+            <PageHeader title={t.recurrence(id ?? '')} onRefresh={handleRefresh} />
             <Box sx={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
                 {renderContent()}
             </Box>

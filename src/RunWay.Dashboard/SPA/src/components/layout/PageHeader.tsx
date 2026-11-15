@@ -6,6 +6,7 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import type { SxProps } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { PageHeader as ShellPageHeader } from '@kododo-dev/way-shell';
+import { useI18n } from '../../i18n/i18n';
 
 interface PageHeaderProps {
   title: string;
@@ -18,6 +19,7 @@ const MONO = { fontFamily: "'IBM Plex Mono', monospace" };
 
 const PageHeader = ({ title, onRefresh, actions, sx }: PageHeaderProps) => {
   const theme = useTheme();
+  const { t } = useI18n();
 
   // The shell's header bar: the menu button on narrow screens; the dashboard's title and actions in it.
   return (
@@ -25,7 +27,7 @@ const PageHeader = ({ title, onRefresh, actions, sx }: PageHeaderProps) => {
       <ShellPageHeader title={<Box component="span" sx={MONO}>{title}</Box>}>
         {actions}
         {onRefresh && (
-          <Tooltip title="Refresh">
+          <Tooltip title={t.refresh}>
             <IconButton
               size="small"
               onClick={onRefresh}

@@ -5,20 +5,14 @@ import { useTheme } from '@mui/material/styles';
 import { useRunners } from '../context/RunnersContext';
 import type {Runner} from '../api/api.model';
 import PageHeader from '../components/layout/PageHeader';
+import { useI18n } from '../i18n/i18n';
+import { formatRelativeTime } from '../utils/jobUtils';
 
 const MONO = { fontFamily: "'IBM Plex Mono', monospace" };
 const ONLINE_THRESHOLD_MS = 120_000;
 
 function isOnline(lastSeenAt: string): boolean {
   return Date.now() - new Date(lastSeenAt).getTime() < ONLINE_THRESHOLD_MS;
-}
-
-function formatRelativeTime(dateStr: string): string {
-  const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);
-  if (diff < 60) return `${diff}s ago`;
-  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-  return `${Math.floor(diff / 86400)}d ago`;
 }
 
 interface RunnerCardProps {
@@ -28,6 +22,7 @@ interface RunnerCardProps {
 const RunnerCard = ({ runner }: RunnerCardProps) => {
   const navigate = useWayNavigate();
   const theme = useTheme();
+  const { t } = useI18n();
   const isDark = theme.palette.mode === 'dark';
   const online = isOnline(runner.lastSeenAt);
 
@@ -75,18 +70,18 @@ const RunnerCard = ({ runner }: RunnerCardProps) => {
           {runner.name}
         </Typography>
         <Typography sx={{ ...MONO, fontSize: '0.68rem', color: online ? onlineColor : offlineColor, fontWeight: 600, flexShrink: 0 }}>
-          {online ? 'online' : 'offline'}
+          {online ? t.online : t.offline}
         </Typography>
       </Box>
 
       <Box sx={{ display: 'flex', gap: 1 }}>
-        <Typography sx={{ ...MONO, fontSize: '0.7rem', color: dimColor, minWidth: 72 }}>id</Typography>
+        <Typography sx={{ ...MONO, fontSize: '0.7rem', color: dimColor, minWidth: 72 }}>{t.runnerId}</Typography>
         <Typography sx={{ ...MONO, fontSize: '0.7rem', color: theme.palette.text.secondary }}>{runner.id}</Typography>
       </Box>
       <Box sx={{ display: 'flex', gap: 1 }}>
-        <Typography sx={{ ...MONO, fontSize: '0.7rem', color: dimColor, minWidth: 72 }}>last seen</Typography>
+        <Typography sx={{ ...MONO, fontSize: '0.7rem', color: dimColor, minWidth: 72 }}>{t.lastSeen}</Typography>
         <Typography sx={{ ...MONO, fontSize: '0.7rem', color: theme.palette.text.secondary }}>
-          {formatRelativeTime(runner.lastSeenAt)}
+          {formatRelativeTime(runner.lastSeenAt, t)}
         </Typography>
       </Box>
     </Box>
@@ -96,16 +91,17 @@ const RunnerCard = ({ runner }: RunnerCardProps) => {
 const RunnersPage = () => {
   const { runners, loaded } = useRunners();
   const theme = useTheme();
+  const { t } = useI18n();
   const isDark = theme.palette.mode === 'dark';
   const dimColor = isDark ? '#555' : '#aaa';
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
-      <PageHeader title="Runners" />
+      <PageHeader title={t.runners} />
       <Box sx={{ flex: 1, minHeight: 0, overflowY: 'auto', p: 3 }}>
         {loaded && runners.length === 0 && (
           <Typography sx={{ ...MONO, fontSize: '0.8rem', color: dimColor }}>
-            No runners registered.
+            {t.noRunners}
           </Typography>
         )}
         <Box sx={{
