@@ -2,13 +2,13 @@ import { useState, useEffect } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import type { GridColDef } from '@mui/x-data-grid';
 import dayjs from 'dayjs';
-import relativeTime from 'dayjs/plugin/relativeTime';
 import { type JobListItem, type JobCategory } from '../../api/api.model';
 import { useWayNavigate } from '../../utils/useWayNavigate';
 import { useTheme } from '@mui/material/styles';
 import JobStatusBadge from './JobStatusBadge';
-
-dayjs.extend(relativeTime);
+import { useI18n } from '../../i18n/i18n';
+import type { Language, TranslationKeys } from '../../i18n/translations';
+import { dataGridLocaleText, fromNow } from '../../i18n/dataGrid';
 
 interface JobsTableProps {
   rows: JobListItem[];
@@ -20,61 +20,58 @@ interface JobsTableProps {
   hideType?: boolean;
 }
 
-const idColumn: GridColDef = {
-  field: 'id',
-  headerName: 'ID',
-  width: 60,
-  sortable: false,
-  filterable: false,
-  renderCell: (params) => `#${params.row.id}`,
-};
+function getColumns(category: JobCategory, hideType: boolean, t: TranslationKeys, lang: Language): GridColDef[] {
+  const idColumn: GridColDef = {
+    field: 'id',
+    headerName: t.columnId,
+    width: 60,
+    sortable: false,
+    filterable: false,
+    renderCell: (params) => `#${params.row.id}`,
+  };
 
-const typeColumn: GridColDef = {
-  field: 'type',
-  headerName: 'Type',
-  width: 220,
-  sortable: false,
-  filterable: false,
-  renderCell: (params) => (<span title={params.row.type.fullName}>{params.row.type.name}</span>),
-};
+  const typeColumn: GridColDef = {
+    field: 'type',
+    headerName: t.columnType,
+    width: 220,
+    sortable: false,
+    filterable: false,
+    renderCell: (params) => (<span title={params.row.type.fullName}>{params.row.type.name}</span>),
+  };
 
-const priorityColumn: GridColDef   = { field: 'priority',     headerName: 'Priority', width: 100, sortable: false, filterable: false };
-const retriesCountColumn: GridColDef = { field: 'retriesCount', headerName: 'Retries',  width: 100, sortable: false, filterable: false };
+  const priorityColumn: GridColDef   = { field: 'priority',     headerName: t.columnPriority, width: 100, sortable: false, filterable: false };
+  const retriesCountColumn: GridColDef = { field: 'retriesCount', headerName: t.columnRetries,  width: 100, sortable: false, filterable: false };
 
-const modifiedAtColumn: GridColDef = {
-  field: 'modifiedAt',
-  headerName: 'Last Update',
-  width: 180,
-  sortable: false,
-  filterable: false,
-  renderCell: (params) => {
-    const d = dayjs(params.row.modifiedAt);
-    return d.isValid() ? d.fromNow() : '—';
-  },
-};
+  const modifiedAtColumn: GridColDef = {
+    field: 'modifiedAt',
+    headerName: t.columnLastUpdate,
+    width: 180,
+    sortable: false,
+    filterable: false,
+    renderCell: (params) => fromNow(params.row.modifiedAt, lang),
+  };
 
-const scheduledAtColumn: GridColDef = {
-  field: 'scheduledAt',
-  headerName: 'Scheduled At',
-  width: 200,
-  sortable: false,
-  filterable: false,
-  renderCell: (params) => {
-    const d = dayjs(params.row.scheduledAt);
-    return d.isValid() ? d.toDate().toLocaleString() : '—';
-  },
-};
+  const scheduledAtColumn: GridColDef = {
+    field: 'scheduledAt',
+    headerName: t.columnScheduledAt,
+    width: 200,
+    sortable: false,
+    filterable: false,
+    renderCell: (params) => {
+      const d = dayjs(params.row.scheduledAt);
+      return d.isValid() ? d.toDate().toLocaleString(lang) : '—';
+    },
+  };
 
-const statusColumn: GridColDef = {
-  field: 'status',
-  headerName: 'Status',
-  width: 130,
-  sortable: false,
-  filterable: false,
-  renderCell: (params) => <JobStatusBadge status={params.row.status} />,
-};
+  const statusColumn: GridColDef = {
+    field: 'status',
+    headerName: t.columnStatus,
+    width: 130,
+    sortable: false,
+    filterable: false,
+    renderCell: (params) => <JobStatusBadge status={params.row.status} />,
+  };
 
-function getColumns(category: JobCategory, hideType: boolean): GridColDef[] {
   const type = hideType ? [] : [typeColumn];
   switch (category) {
     case 'Pending':  return [idColumn, ...type, priorityColumn, scheduledAtColumn];
@@ -88,11 +85,12 @@ const JobsTable = ({ category, rows, rowCount, loading, paginationModel, setPagi
   const theme = useTheme();
   const isDark = theme.palette.mode === 'dark';
   const navigate = useWayNavigate();
+  const { t, lang } = useI18n();
   const [columns, setColumns] = useState<GridColDef[]>([]);
 
   useEffect(() => {
-    setColumns(getColumns(category, hideType));
-  }, [category, hideType]);
+    setColumns(getColumns(category, hideType, t, lang));
+  }, [category, hideType, t, lang]);
 
   const borderColor = isDark ? '#2e2e2e' : '#e0e0e0';
   const headerBg    = isDark ? '#222'    : '#fafafa';
@@ -105,6 +103,7 @@ const JobsTable = ({ category, rows, rowCount, loading, paginationModel, setPagi
       getRowHeight={() => 36}
       rows={rows}
       columns={columns}
+      localeText={dataGridLocaleText(lang)}
       onColumnResize={(params) => {
         setColumns(prev =>
           prev.map(col => col.field === params.colDef.field ? { ...col, width: params.width } : col)

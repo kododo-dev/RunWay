@@ -1,3 +1,4 @@
+import type React from 'react';
 import { useParams } from 'react-router-dom';
 import { WayMenu } from '@kododo-dev/way-shell';
 import { useWayNavigate } from '../../utils/useWayNavigate';
@@ -22,20 +23,22 @@ import { useTheme } from '@mui/material/styles';
 import { useJobMetrics } from '../../context/JobMetricsContext';
 import { useRunners } from '../../context/RunnersContext';
 import { useRecurrences } from '../../context/RecurrencesContext';
-import { CATEGORY_COLORS } from '../../utils/jobUtils';
+import { jobCategories } from '../../utils/jobUtils';
+import { useI18n } from '../../i18n/i18n';
 
-const jobCategories = [
-  { key: 'pending',   label: 'Pending',   icon: <HourglassEmptyIcon />, color: CATEGORY_COLORS.pending },
-  { key: 'running',   label: 'Running',   icon: <AutorenewIcon />,      color: CATEGORY_COLORS.running },
-  { key: 'retrying',  label: 'Retrying',  icon: <RotateRightIcon />,    color: CATEGORY_COLORS.retrying },
-  { key: 'succeeded', label: 'Succeeded', icon: <CheckCircleOutlineIcon />, color: CATEGORY_COLORS.succeeded },
-  { key: 'failed',    label: 'Failed',    icon: <ErrorOutlineIcon />,      color: CATEGORY_COLORS.failed },
-];
+const categoryIcons: Record<string, React.ReactNode> = {
+  pending:   <HourglassEmptyIcon />,
+  running:   <AutorenewIcon />,
+  retrying:  <RotateRightIcon />,
+  succeeded: <CheckCircleOutlineIcon />,
+  failed:    <ErrorOutlineIcon />,
+};
 
 // The dashboard's items in the shell's side menu; paths are from the dashboard's root.
 const SideMenu = () => {
   const navigate = useWayNavigate();
   const theme = useTheme();
+  const { t } = useI18n();
   const isDark = theme.palette.mode === 'dark';
   const { history: _history, ...jobCounts } = useJobMetrics();
   const { onlineCount: runnersCount } = useRunners();
@@ -81,7 +84,7 @@ const SideMenu = () => {
             <ListItem disablePadding>
               <ListItemButton selected={isDashboard} onClick={() => navigate('/')}>
                 <ListItemIcon sx={isDashboard ? activeIconSx : iconSx}><DashboardIcon /></ListItemIcon>
-                <ListItemText primary="Dashboard" sx={textSx(isDashboard)} />
+                <ListItemText primary={t.dashboard} sx={textSx(isDashboard)} />
               </ListItemButton>
             </ListItem>
           </List>
@@ -99,12 +102,12 @@ const SideMenu = () => {
             fontFamily: 'monospace',
             flexShrink: 0,
           }}>
-            Jobs
+            {t.jobs}
           </Typography>
 
           <Box sx={{ flex: 1, minHeight: 0, overflowY: 'auto', pb: 1 }}>
             <List dense disablePadding>
-              {jobCategories.map(cat => {
+              {jobCategories(t).map(cat => {
                 const active = jobCategoryFromPath === cat.key;
                 const count = jobCounts[cat.key as keyof typeof jobCounts] ?? 0;
                 return (
@@ -114,7 +117,7 @@ const SideMenu = () => {
                       onClick={() => navigate(`/jobs/category/${cat.key}`)}
                     >
                       <ListItemIcon sx={active ? { ...activeIconSx, color: cat.color } : { ...iconSx, '& svg': { fontSize: 16 } }}>
-                        {cat.icon}
+                        {categoryIcons[cat.key]}
                       </ListItemIcon>
                       <ListItemText primary={cat.label} sx={textSx(active)} />
                       {count > 0 && (
@@ -144,7 +147,7 @@ const SideMenu = () => {
               <ListItem disablePadding>
                 <ListItemButton selected={isRecurrences} onClick={() => navigate('/recurrences')}>
                   <ListItemIcon sx={isRecurrences ? activeIconSx : iconSx}><RepeatIcon /></ListItemIcon>
-                  <ListItemText primary="Recurrences" sx={textSx(isRecurrences)} />
+                  <ListItemText primary={t.recurrences} sx={textSx(isRecurrences)} />
                   {recurrencesCount > 0 && (
                     <Badge badgeContent={recurrencesCount} sx={neutralBadgeSx} />
                   )}
@@ -156,7 +159,7 @@ const SideMenu = () => {
               <ListItem disablePadding>
                 <ListItemButton selected={isRunners} onClick={() => navigate('/runners')}>
                   <ListItemIcon sx={isRunners ? activeIconSx : iconSx}><DirectionsRunIcon /></ListItemIcon>
-                  <ListItemText primary="Runners" sx={textSx(isRunners)} />
+                  <ListItemText primary={t.runners} sx={textSx(isRunners)} />
                   {runnersCount > 0 && (
                     <Badge badgeContent={runnersCount} sx={neutralBadgeSx} />
                   )}

@@ -6,6 +6,8 @@ import { type JobCategory } from '../api/api.model';
 import type { JobListItem } from '../api/api.model';
 import JobsTable from '../components/jobs/JobsTable';
 import PageHeader from '../components/layout/PageHeader';
+import { useI18n } from '../i18n/i18n';
+import type { TranslationKeys } from '../i18n/translations';
 
 const pathToJobCategory: Record<string, JobCategory> = {
   pending:   'Pending',
@@ -15,17 +17,18 @@ const pathToJobCategory: Record<string, JobCategory> = {
   failed:    'Failed',
 };
 
-const categoryLabel: Record<string, string> = {
-  pending:   'Pending jobs',
-  running:   'Running jobs',
-  retrying:  'Retrying jobs',
-  succeeded: 'Succeeded jobs',
-  failed:    'Failed jobs',
-};
+const categoryLabel = (t: TranslationKeys): Record<string, string> => ({
+  pending:   t.pendingJobs,
+  running:   t.runningJobs,
+  retrying:  t.retryingJobs,
+  succeeded: t.succeededJobs,
+  failed:    t.failedJobs,
+});
 
 const JobsPage = () => {
   const { category } = useParams<{ category?: string }>();
   const api = useApi();
+  const { t } = useI18n();
   const jobCategoryFromPath = category || null;
 
   const [rows, setRows] = useState<JobListItem[]>([]);
@@ -59,7 +62,7 @@ const JobsPage = () => {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
       <PageHeader
-        title={categoryLabel[jobCategoryFromPath] ?? 'Jobs'}
+        title={categoryLabel(t)[jobCategoryFromPath] ?? t.jobs}
         onRefresh={handleRefresh}
       />
       <Box sx={{ flex: 1, minHeight: 0, p: 3, display: 'flex', flexDirection: 'column' }}>

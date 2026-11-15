@@ -6,6 +6,7 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { useTheme } from '@mui/material/styles';
 import { CATEGORY_COLORS } from '../../utils/jobUtils';
+import { useI18n } from '../../i18n/i18n';
 
 interface ChartJobsHistoryProps {
   history: JobMetricsHistoryItem[];
@@ -13,6 +14,7 @@ interface ChartJobsHistoryProps {
 
 const ChartJobsHistory: React.FC<ChartJobsHistoryProps> = ({ history }) => {
   const theme = useTheme();
+  const { t } = useI18n();
   const isDark = theme.palette.mode === 'dark';
 
   const gridColor  = isDark ? '#2a2a2a' : '#eee';
@@ -35,7 +37,7 @@ const ChartJobsHistory: React.FC<ChartJobsHistoryProps> = ({ history }) => {
         letterSpacing: '0.08em',
         mb: 1.5,
       }}>
-        Active jobs history
+        {t.activeJobsHistory}
       </Typography>
       <Box sx={{
         background: isDark ? '#222' : '#fff',
@@ -49,9 +51,9 @@ const ChartJobsHistory: React.FC<ChartJobsHistoryProps> = ({ history }) => {
             <XAxis dataKey="time" minTickGap={20} tick={false} axisLine={{ stroke: axisColor }} tickLine={false} />
             <YAxis allowDecimals={false} tick={{ fontSize: 11, fontFamily: 'monospace', fill: axisColor }} axisLine={false} tickLine={false} />
             <Tooltip content={CustomTooltip} />
-            <Line type="monotone" dataKey="pending"  stroke={CATEGORY_COLORS.pending}  dot={false} name="Pending"  strokeWidth={1.5} />
-            <Line type="monotone" dataKey="running"  stroke={CATEGORY_COLORS.running}  dot={false} name="Running"  strokeWidth={1.5} />
-            <Line type="monotone" dataKey="retrying" stroke={CATEGORY_COLORS.retrying} dot={false} name="Retrying" strokeWidth={1.5} />
+            <Line type="monotone" dataKey="pending"  stroke={CATEGORY_COLORS.pending}  dot={false} name={t.categoryPending}  strokeWidth={1.5} />
+            <Line type="monotone" dataKey="running"  stroke={CATEGORY_COLORS.running}  dot={false} name={t.categoryRunning}  strokeWidth={1.5} />
+            <Line type="monotone" dataKey="retrying" stroke={CATEGORY_COLORS.retrying} dot={false} name={t.categoryRetrying} strokeWidth={1.5} />
           </LineChart>
         </ResponsiveContainer>
       </Box>

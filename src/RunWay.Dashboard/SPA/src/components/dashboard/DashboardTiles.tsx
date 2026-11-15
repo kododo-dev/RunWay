@@ -2,7 +2,8 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { useTheme } from '@mui/material/styles';
 import { useWayNavigate } from '../../utils/useWayNavigate';
-import { CATEGORY_COLORS } from '../../utils/jobUtils';
+import { jobCategories } from '../../utils/jobUtils';
+import { useI18n } from '../../i18n/i18n';
 
 interface DashboardTilesProps {
   jobCounts: {
@@ -14,20 +15,14 @@ interface DashboardTilesProps {
   };
 }
 
-const tiles = [
-  { key: 'pending',   label: 'Pending',   color: CATEGORY_COLORS.pending },
-  { key: 'running',   label: 'Running',   color: CATEGORY_COLORS.running },
-  { key: 'retrying',  label: 'Retrying',  color: CATEGORY_COLORS.retrying },
-  { key: 'succeeded', label: 'Succeeded', color: CATEGORY_COLORS.succeeded },
-  { key: 'failed',    label: 'Failed',    color: CATEGORY_COLORS.failed },
-];
-
 const MONO = { fontFamily: "'IBM Plex Mono', monospace" };
 
 const DashboardTiles = ({ jobCounts }: DashboardTilesProps) => {
   const theme = useTheme();
   const isDark = theme.palette.mode === 'dark';
   const navigate = useWayNavigate();
+  const { t } = useI18n();
+  const tiles = jobCategories(t);
 
   const cardBg     = isDark ? '#222' : '#fff';
   const borderBase = isDark ? '#2e2e2e' : '#e0e0e0';

@@ -10,19 +10,13 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import { useTheme } from '@mui/material/styles';
 import type {RunnerDetails} from "../api/api.model.ts";
 import { useApi } from '../api/api';
+import { useI18n } from '../i18n/i18n';
+import { formatRelativeTime } from '../utils/jobUtils';
 
 const MONO = { fontFamily: "'IBM Plex Mono', monospace" };
 
-function formatRelativeTime(dateStr: string): string {
-  const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);
-  if (diff < 60) return `${diff}s ago`;
-  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-  return `${Math.floor(diff / 86400)}d ago`;
-}
-
-function formatDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString(undefined, {
+function formatDate(dateStr: string, lang: string): string {
+  return new Date(dateStr).toLocaleDateString(lang, {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
@@ -36,6 +30,7 @@ const RunnerPage = () => {
   const navigate = useWayNavigate();
   const api = useApi();
   const theme = useTheme();
+  const { t, lang } = useI18n();
   const isDark = theme.palette.mode === 'dark';
 
   const [runner, setRunner] = useState<RunnerDetails | null>(null);
@@ -95,7 +90,7 @@ const RunnerPage = () => {
   if (runnerLoading) {
     return (
       <Box sx={{ p: 4 }}>
-        <Typography sx={{ ...MONO, fontSize: '0.8rem', color: dimColor }}>Loading...</Typography>
+        <Typography sx={{ ...MONO, fontSize: '0.8rem', color: dimColor }}>{t.loading}</Typography>
       </Box>
     );
   }
@@ -114,12 +109,12 @@ const RunnerPage = () => {
           flexShrink: 0,
         }}>
           <Typography sx={{ ...MONO, fontSize: '1rem', fontWeight: 700, color: theme.palette.text.primary }}>
-            Runner not found
+            {t.runnerNotFound}
           </Typography>
         </Box>
         <Box sx={{ p: 4 }}>
           <Typography sx={{ ...MONO, fontSize: '0.8rem', color: dimColor }}>
-            Runner #{id} is no longer registered.
+            {t.runnerNoLongerRegistered(id ?? '')}
           </Typography>
         </Box>
       </Box>
@@ -141,7 +136,7 @@ const RunnerPage = () => {
         <Typography sx={{ ...MONO, fontSize: '1rem', fontWeight: 700, color: theme.palette.text.primary, flex: 1 }}>
           {runner.name}
         </Typography>
-        <Tooltip title="Refresh">
+        <Tooltip title={t.refresh}>
           <IconButton size="small" onClick={() => loadRunner(true)} sx={{ color: theme.palette.text.secondary, '&:hover': { color: theme.palette.primary.main } }}>
             <RefreshIcon sx={{ fontSize: 18 }} />
           </IconButton>
@@ -153,10 +148,10 @@ const RunnerPage = () => {
         <Box sx={{ background: cardBg, border: `1px solid ${borderColor}`, borderRadius: 1, p: 2.5 }}>
           <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 2, mb: 1.5 }}>
             <Typography sx={{ ...MONO, fontSize: '0.62rem', color: dimColor, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-              Details
+              {t.details}
             </Typography>
             <Chip
-              label={online ? 'online' : 'offline'}
+              label={online ? t.online : t.offline}
               size="small"
               sx={{
                 ...MONO,
@@ -168,15 +163,15 @@ const RunnerPage = () => {
               }}
             />
           </Box>
-          {infoRow('id', runner.id)}
-          {infoRow('last seen', formatRelativeTime(runner.lastSeenAt))}
-          {infoRow('registered', formatDate(runner.createdAt))}
+          {infoRow(t.runnerId, runner.id)}
+          {infoRow(t.lastSeen, formatRelativeTime(runner.lastSeenAt, t))}
+          {infoRow(t.registered, formatDate(runner.createdAt, lang))}
         </Box>
 
         <Box sx={{ background: cardBg, border: `1px solid ${borderColor}`, borderRadius: 1, p: 2.5 }}>
-          {sectionLabel('Job types')}
+          {sectionLabel(t.jobTypes)}
           {runner.jobTypes.length === 0 ? (
-            <Typography sx={{ ...MONO, fontSize: '0.75rem', color: dimColor }}>None</Typography>
+            <Typography sx={{ ...MONO, fontSize: '0.75rem', color: dimColor }}>{t.none}</Typography>
           ) : (
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75 }}>
               {runner.jobTypes.map(jt => (
@@ -200,17 +195,17 @@ const RunnerPage = () => {
         </Box>
 
         <Box sx={{ background: cardBg, border: `1px solid ${borderColor}`, borderRadius: 1, p: 2.5 }}>
-          {sectionLabel('Active jobs')}
+          {sectionLabel(t.activeJobs)}
           {runnerLoading && (
-            <Typography sx={{ ...MONO, fontSize: '0.75rem', color: dimColor }}>Loading...</Typography>
+            <Typography sx={{ ...MONO, fontSize: '0.75rem', color: dimColor }}>{t.loading}</Typography>
           )}
           {!runnerLoading && runnerError && (
             <Typography sx={{ ...MONO, fontSize: '0.75rem', color: dimColor }}>
-              Could not load active jobs.
+              {t.activeJobsError}
             </Typography>
           )}
           {!runnerLoading && !runnerError && runner.jobs.length === 0 && (
-            <Typography sx={{ ...MONO, fontSize: '0.75rem', color: dimColor }}>No active jobs.</Typography>
+            <Typography sx={{ ...MONO, fontSize: '0.75rem', color: dimColor }}>{t.noActiveJobs}</Typography>
           )}
           {!runnerLoading && !runnerError && runner.jobs.length > 0 && (
             <Box sx={{
@@ -226,7 +221,7 @@ const RunnerPage = () => {
                 background: isDark ? '#222' : '#fafafa',
                 borderBottom: `1px solid ${borderColor}`,
               }}>
-                {['ID', 'Type', 'Scheduled At'].map(h => (
+                {[t.columnId, t.columnType, t.columnScheduledAt].map(h => (
                   <Box key={h} sx={{
                     px: 1.5, py: 0.75,
                     fontSize: '0.72rem',
@@ -259,7 +254,7 @@ const RunnerPage = () => {
                     {job.type.name}
                   </Box>
                   <Box sx={{ px: 1.5, py: 0.75, fontSize: '0.78rem', fontFamily: "'IBM Plex Mono', monospace", color: isDark ? '#ccc' : '#333' }}>
-                    {formatDate(job.scheduledAt)}
+                    {formatDate(job.scheduledAt, lang)}
                   </Box>
                 </Box>
               ))}

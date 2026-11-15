@@ -23,6 +23,7 @@ import {
 import { useTheme } from '@mui/material/styles';
 import PageHeader from '../components/layout/PageHeader';
 import { statusName, auditTypeName, auditDotColor, formatTimeDelta, localDate, STATUS_COLORS } from '../utils/jobUtils';
+import { useI18n } from '../i18n/i18n';
 
 const MONO = { fontFamily: "'IBM Plex Mono', monospace" };
 const REFRESH_INTERVAL = 5000;
@@ -31,6 +32,7 @@ const JobPage = () => {
   const { id } = useParams<{ id: string }>();
   const api = useApi();
   const theme = useTheme();
+  const { t, lang } = useI18n();
   const isDark = theme.palette.mode === 'dark';
 
   const [job, setJob] = useState<JobDetails | null>(null);
@@ -47,9 +49,9 @@ const JobPage = () => {
     if (!id) return;
     api.fetchJobDetails(id)
       .then(data => { setJob(data); setError(null); })
-      .catch(() => setError('Error while fetching job details.'))
+      .catch(() => setError(t.jobFetchError))
       .finally(() => setLoading(false));
-  }, [api, id]);
+  }, [api, id, t]);
 
   useEffect(() => {
     setLoading(true);
@@ -66,7 +68,7 @@ const JobPage = () => {
       await api.requeueJob(id);
       fetchAndSetJob();
     } catch {
-      setRequeueError('Requeue failed. Please try again.');
+      setRequeueError(t.requeueFailed);
     } finally {
       setRequeueing(false);
     }
@@ -82,7 +84,7 @@ const JobPage = () => {
       onClick={handleRequeue}
       sx={{ ...MONO, fontSize: '0.7rem', textTransform: 'none', py: 0.25 }}
     >
-      Requeue
+      {t.requeue}
     </Button>
   ) : null;
 
@@ -93,7 +95,7 @@ const JobPage = () => {
       </Box>
     );
     if (error) return <Alert severity="error" sx={{ m: 3, ...MONO, fontSize: '0.78rem' }}>{error}</Alert>;
-    if (!job)  return <Alert severity="warning" sx={{ m: 3, ...MONO, fontSize: '0.78rem' }}>Job not found.</Alert>;
+    if (!job)  return <Alert severity="warning" sx={{ m: 3, ...MONO, fontSize: '0.78rem' }}>{t.jobNotFound}</Alert>;
 
     let parsedData: unknown;
     try { parsedData = job.data ? JSON.parse(job.data) : null; }
@@ -122,7 +124,7 @@ const JobPage = () => {
               </Typography>
             </Box>
             <Chip
-              label={statusName(job.status)}
+              label={statusName(job.status, t)}
               size="small"
               sx={{
                 ...MONO,
@@ -138,13 +140,13 @@ const JobPage = () => {
           <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
             {job.priority !== 0 && (
               <Box>
-                <Typography sx={{ ...MONO, fontSize: '0.62rem', color: theme.palette.text.secondary, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Priority</Typography>
+                <Typography sx={{ ...MONO, fontSize: '0.62rem', color: theme.palette.text.secondary, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{t.priority}</Typography>
                 <Typography sx={{ ...MONO, fontSize: '0.85rem', color: theme.palette.text.primary }}>{job.priority}</Typography>
               </Box>
             )}
             {job.retriesCount !== 0 && (
               <Box>
-                <Typography sx={{ ...MONO, fontSize: '0.62rem', color: theme.palette.text.secondary, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Retries</Typography>
+                <Typography sx={{ ...MONO, fontSize: '0.62rem', color: theme.palette.text.secondary, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{t.retries}</Typography>
                 <Typography sx={{ ...MONO, fontSize: '0.85rem', color: theme.palette.text.primary }}>{job.retriesCount}</Typography>
               </Box>
             )}
@@ -153,7 +155,7 @@ const JobPage = () => {
 
         <Box>
           <Typography sx={{ ...MONO, fontSize: '0.72rem', color: theme.palette.text.secondary, textTransform: 'uppercase', letterSpacing: '0.08em', mb: 1 }}>
-            Payload
+            {t.payload}
           </Typography>
           <Box sx={{
             background: sectionBg,
@@ -178,7 +180,7 @@ const JobPage = () => {
 
         <Box>
           <Typography sx={{ ...MONO, fontSize: '0.72rem', color: theme.palette.text.secondary, textTransform: 'uppercase', letterSpacing: '0.08em', mb: 1 }}>
-            Audit timeline
+            {t.auditTimeline}
           </Typography>
           <Box sx={{
             background: cardBg,
@@ -202,7 +204,7 @@ const JobPage = () => {
                   return (
                     <TimelineItem key={idx}>
                       <TimelineOppositeContent sx={{ ...MONO, fontSize: '0.7rem', color: theme.palette.text.secondary, pt: 1.5 }}>
-                        {localDate(item.time)}
+                        {localDate(item.time, lang)}
                         {delta && (
                           <Box sx={{ ...MONO, fontSize: '0.65rem', color: theme.palette.text.disabled, mt: 0.3 }}>
                             {delta}
@@ -220,7 +222,7 @@ const JobPage = () => {
                       </TimelineSeparator>
                       <TimelineContent sx={{ pb: 2, pt: 1.5 }}>
                         <Typography sx={{ ...MONO, fontSize: '0.82rem', fontWeight: 600, color: theme.palette.text.primary }}>
-                          {auditTypeName(item.type)}
+                          {auditTypeName(item.type, t)}
                         </Typography>
                         {item.details && (
                           <Typography sx={{ ...MONO, fontSize: '0.72rem', color: theme.palette.text.secondary, mt: 0.3, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
@@ -234,7 +236,7 @@ const JobPage = () => {
               </Timeline>
             ) : (
               <Typography sx={{ ...MONO, fontSize: '0.78rem', color: theme.palette.text.secondary, p: 2 }}>
-                No audit records.
+                {t.noAuditRecords}
               </Typography>
             )}
           </Box>
@@ -245,7 +247,7 @@ const JobPage = () => {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
-      <PageHeader title={`Job #${id}`} actions={requeueAction} onRefresh={fetchAndSetJob} />
+      <PageHeader title={t.job(id ?? '')} actions={requeueAction} onRefresh={fetchAndSetJob} />
       <Box sx={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
         {renderContent()}
       </Box>

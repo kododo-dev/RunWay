@@ -4,9 +4,11 @@ import { useApi } from '../api/api';
 import type { Recurrence } from '../api/api.model';
 import RecurrencesTable from '../components/recurrences/RecurrencesTable';
 import PageHeader from '../components/layout/PageHeader';
+import { useI18n } from '../i18n/i18n';
 
 const RecurrencesPage = () => {
     const api = useApi();
+    const { t } = useI18n();
     const [rows, setRows] = useState<Recurrence[]>([]);
     const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 });
     const [rowCount, setRowCount] = useState<number>(0);
@@ -33,7 +35,7 @@ const RecurrencesPage = () => {
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
             <PageHeader
-                title="Recurrences"
+                title={t.recurrences}
                 onRefresh={handleRefresh}
             />
             <Box sx={{ flex: 1, minHeight: 0, p: 3, display: 'flex', flexDirection: 'column' }}>

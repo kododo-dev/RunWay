@@ -69,6 +69,7 @@ async function open(options = {}) {
   await page.getByRole('button', { name: 'Language' }).click();
   await page.getByRole('menuitem', { name: 'Polski' }).click();
   record('shell language switch', await visible(page.getByRole('button', { name: 'Ciemny motyw' })));
+  record('dashboard in the shell language', await visible(page.getByRole('heading', { name: 'Pulpit' })));
   await page.getByRole('button', { name: 'Ciemny motyw' }).click();
   const header = await page.locator('main header').first().evaluate((e) => getComputedStyle(e).backgroundColor);
   record("dashboard's dark paper in its area", header === 'rgb(36, 36, 36)', header);

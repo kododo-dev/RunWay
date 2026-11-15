@@ -3,6 +3,9 @@ import type { GridColDef } from '@mui/x-data-grid';
 import { type Recurrence } from '../../api/api.model';
 import { useTheme } from '@mui/material/styles';
 import { useWayNavigate } from '../../utils/useWayNavigate';
+import { useI18n } from '../../i18n/i18n';
+import type { TranslationKeys } from '../../i18n/translations';
+import { dataGridLocaleText } from '../../i18n/dataGrid';
 
 interface RecurrencesTableProps {
     rows: Recurrence[];
@@ -12,10 +15,10 @@ interface RecurrencesTableProps {
     setPaginationModel: (model: { page: number; pageSize: number }) => void;
 }
 
-const columns: GridColDef[] = [
+const getColumns = (t: TranslationKeys): GridColDef[] => [
     {
         field: 'id',
-        headerName: 'ID',
+        headerName: t.columnId,
         width: 160,
         sortable: false,
         filterable: false,
@@ -23,7 +26,7 @@ const columns: GridColDef[] = [
     },
     {
         field: 'type',
-        headerName: 'Type',
+        headerName: t.columnType,
         width: 220,
         sortable: false,
         filterable: false,
@@ -33,7 +36,7 @@ const columns: GridColDef[] = [
     },
     {
         field: 'rule',
-        headerName: 'Cron',
+        headerName: t.columnCron,
         width: 200,
         sortable: false,
         filterable: false,
@@ -45,6 +48,7 @@ const RecurrencesTable = ({ rows, rowCount, loading, paginationModel, setPaginat
     const theme = useTheme();
     const isDark = theme.palette.mode === 'dark';
     const navigate = useWayNavigate();
+    const { t, lang } = useI18n();
 
     const borderColor = isDark ? '#2e2e2e' : '#e0e0e0';
     const headerBg    = isDark ? '#222'    : '#fafafa';
@@ -56,7 +60,8 @@ const RecurrencesTable = ({ rows, rowCount, loading, paginationModel, setPaginat
             density="compact"
             getRowHeight={() => 36}
             rows={rows}
-            columns={columns}
+            columns={getColumns(t)}
+            localeText={dataGridLocaleText(lang)}
             disableColumnSelector
             disableDensitySelector
             disableColumnMenu
