@@ -1,4 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFrameworks>net11.0</TargetFrameworks>
+  </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\RunWay.Dashboard\RunWay.Dashboard.csproj" />
     <ProjectReference Include="..\RunWay.PostgreSQL\RunWay.PostgreSQL.csproj" />

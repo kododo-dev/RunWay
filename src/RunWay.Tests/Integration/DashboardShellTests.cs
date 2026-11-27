@@ -49,7 +49,7 @@ public class DashboardShellTests
         var module = await client.GetAsync("/jobs/_way/way.js");
 
         Assert.Equal(HttpStatusCode.OK, module.StatusCode);
-        Assert.Contains("contract:2", (await module.Content.ReadAsStringAsync()).Replace(" ", ""));
+        Assert.Contains($"contract:{Kododo.Way.Shell.WayShellContract.Version}", (await module.Content.ReadAsStringAsync()).Replace(" ", ""));
     }
 
     [Theory]
