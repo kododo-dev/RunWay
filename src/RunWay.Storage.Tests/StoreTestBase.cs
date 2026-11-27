@@ -21,7 +21,7 @@ public abstract class StoreTestBase<TFixture> : IAsyncLifetime
 
     protected StoreTestBase(TFixture fixture) => Fixture = fixture;
 
-    public virtual async Task InitializeAsync()
+    public virtual async ValueTask InitializeAsync()
     {
         var services = new ServiceCollection();
         services.AddRunWay(Fixture.ConfigureStorage);
@@ -34,7 +34,7 @@ public abstract class StoreTestBase<TFixture> : IAsyncLifetime
         await Fixture.ResetAsync();
     }
 
-    public virtual async Task DisposeAsync()
+    public virtual async ValueTask DisposeAsync()
     {
         await Scope.DisposeAsync();
         await ServiceProvider.DisposeAsync();

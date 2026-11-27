@@ -194,7 +194,7 @@ The dashboard shows job counts by status, a paginated job list, per-job audit ti
 
 ## Requirements
 
-- .NET 8, 9, or 10
+- .NET 10 or later
 - A storage provider: PostgreSQL 12 or later, or SQL Server 2016 or later (incl. Azure SQL Database)
 
 ## License

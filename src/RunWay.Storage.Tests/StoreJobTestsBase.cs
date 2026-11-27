@@ -15,7 +15,7 @@ public abstract class StoreJobTestsBase<TFixture> : StoreTestBase<TFixture>
 
     protected StoreJobTestsBase(TFixture fixture) : base(fixture) { }
 
-    public override async Task InitializeAsync()
+    public override async ValueTask InitializeAsync()
     {
         await base.InitializeAsync();
         _sampleRunner = await RegisterRunnerAsync("test-runner");

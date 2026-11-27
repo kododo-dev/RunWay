@@ -14,9 +14,9 @@ public sealed class SqlServerFixture : IAsyncLifetime, IStorageTestFixture
 
     public string ConnectionString => _container.GetConnectionString();
 
-    public Task InitializeAsync() => _container.StartAsync();
+    public async ValueTask InitializeAsync() => await _container.StartAsync();
 
-    public Task DisposeAsync() => _container.DisposeAsync().AsTask();
+    public ValueTask DisposeAsync() => _container.DisposeAsync();
 
     public void ConfigureStorage(IRunWayConfiguration config) =>
         config.UseSqlServer(_ => new SqlConnection(ConnectionString));
